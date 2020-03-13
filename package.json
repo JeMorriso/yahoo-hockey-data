@@ -1,0 +1,24 @@
+{
+  "name": "In-it-to-Winnik",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JeMorriso/yahoo-hockey-data.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JeMorriso/yahoo-hockey-data/issues"
+  },
+  "homepage": "https://github.com/JeMorriso/yahoo-hockey-data#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "mysql": "^2.18.1"
+  }
+}
