@@ -9,6 +9,7 @@ verify_ssl = true
 mysql-connector-python = "*"
 yahoo-oauth = "*"
 python-dotenv = "*"
+argparse = "*"
 
 [requires]
 python_version = "3.8"

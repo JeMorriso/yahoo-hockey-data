@@ -1,10 +1,14 @@
 from yahoo_oauth import OAuth2
 import json
 
-url = "https://fantasysports.yahooapis.com/fantasy/v2"
+import db
+
+db_connection = db.connect() 
+
+api_url = "https://fantasysports.yahooapis.com/fantasy/v2"
 league_url = "https://fantasysports.yahooapis.com/fantasy/v2/league/nhl.l.18538"
 
-oauth = OAuth2(None,None, from_file='credentials.json', base_url=url)
+oauth = OAuth2(None,None, from_file='credentials.json', base_url=api_url)
 
 # print relevant league data to json files so that I can see what is important to get from Yahoo
 
@@ -28,10 +32,10 @@ oauth = OAuth2(None,None, from_file='credentials.json', base_url=url)
 
 # matchup information
 # week does nothing with matchups
-response = oauth.session.get(url + "/team/nhl.l.18538.t.1/matchups;week=10", params={'format': 'json'})
+# response = oauth.session.get(url + "/team/nhl.l.18538.t.1/matchups;week=10", params={'format': 'json'})
 
-with open("matchup.json", "w") as outfile:
-    json.dump(response.json(), outfile, indent=4)
+# with open("matchup.json", "w") as outfile:
+#     json.dump(response.json(), outfile, indent=4)
 
 # # stats information
 # response = oauth.session.get(url + "/team/nhl.l.18538.t.1/stats", params={'format': 'json'})
@@ -46,8 +50,8 @@ with open("matchup.json", "w") as outfile:
 #     json.dump(response.json(), outfile, indent=4)
 
 # league settings information
-response = oauth.session.get(league_url + "/settings", params={'format': 'json'})
+# response = oauth.session.get(league_url + "/settings", params={'format': 'json'})
 
-with open("settings.json", "w") as outfile:
-    json.dump(response.json(), outfile, indent=4)
+# with open("settings.json", "w") as outfile:
+#     json.dump(response.json(), outfile, indent=4)
 
