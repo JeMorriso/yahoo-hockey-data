@@ -18,5 +18,6 @@ class YahooLeagueData:
         # now take the json and turn it into a python object
         league_object = json.loads(league_json)
 
+        print(league_object)
         # grab the relevant data
         return league_object['fantasy_content']['leagues']['0']['league'][0]
