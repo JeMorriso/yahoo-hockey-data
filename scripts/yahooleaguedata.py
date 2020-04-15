@@ -60,7 +60,6 @@ class YahooLeagueData:
         matchup_data = self.api_call(self.api_url + '/team/' + teams[0]['yahoo_key'] + '/matchups')
 
         matchups = matchup_data['fantasy_content']['team'][1]['matchups']
-
         # remove count key
         matchups.pop('count', None)
 
@@ -70,3 +69,40 @@ class YahooLeagueData:
                           'end_date':  matchups[matchup]['matchup']['week_end']})
 
         return weeks
+
+    # return all regular season matchups
+    def parse_raw_matchups(self):
+        # get access to the team key so that we can build the matchup endpoint url
+        teams = self.parse_raw_teams()
+
+        settings_data = self.api_call(self.league_url + '/settings')
+        reg_season_weeks = int(settings_data['fantasy_content']['leagues']['0']['league'][1]['settings'][0]['playoff_start_week'])-1
+
+        # list of lists that store each matchup each week
+        matchups_by_week = [[] for i in range(0, reg_season_weeks)]
+
+        for team in teams:
+            matchup_data = self.api_call(self.api_url + '/team/' + team['yahoo_key'] + '/matchups')
+
+            team_key = matchup_data['fantasy_content']['team'][0][0]['team_key']
+
+            matchups = matchup_data['fantasy_content']['team'][1]['matchups']
+            # remove count key
+            matchups.pop('count', None)
+
+            for matchup in matchups:
+                # if playoffs matchup, skip
+                if int(matchups[matchup]['matchup']['week']) <= reg_season_weeks:
+                    week_index_zero = int(matchups[matchup]['matchup']['week'])-1
+                    opponent_team_key = matchups[matchup]['matchup']['0']['teams']['1']['team'][0][0]['team_key']
+                    # check if the opponent already exists in one of the lists for the week
+                    # if so, add this team to that list, otherwise add this team to a new list
+                    for pair in matchups_by_week[week_index_zero]:
+                        if opponent_team_key in pair:
+                            pair.append(team_key)
+                            break
+                    else:
+                        matchups_by_week[week_index_zero].append([team_key])
+
+        return matchups_by_week
+

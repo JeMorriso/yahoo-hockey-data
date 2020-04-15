@@ -54,10 +54,12 @@ CREATE TABLE fantasy_team (
 
 CREATE TABLE matchup (
   id int PRIMARY KEY AUTO_INCREMENT,
+--  home and away are arbitrary discriminators, and not reflected in the yahoo league in any way
   home_id int,
   away_id int,
-  home_score int,
-  away_score int
+--  home_score int,
+--  away_score int,
+  week
 );
 
 CREATE TABLE roster (
@@ -142,6 +144,8 @@ ALTER TABLE fantasy_team ADD FOREIGN KEY (league_id) REFERENCES league (id);
 ALTER TABLE matchup ADD FOREIGN KEY (home_id) REFERENCES fantasy_team (id);
 
 ALTER TABLE matchup ADD FOREIGN KEY (away_id) REFERENCES fantasy_team (id);
+
+ALTER TABLE matchup ADD FOREIGN KEY (week_id) REFERENCES week (id);
 
 ALTER TABLE roster ADD FOREIGN KEY (team_id) REFERENCES fantasy_team (id);
 

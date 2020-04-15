@@ -19,11 +19,14 @@ def setup():
     # categories = league.parse_raw_scoring_categories()
     # db.insert_scoring_categories(categories, league_info)
 
-    teams = league.parse_raw_teams()
-    db.insert_fantasy_teams(teams, league_info)
+    # teams = league.parse_raw_teams()
+    # db.insert_fantasy_teams(teams, league_info)
+    #
+    # weeks = league.parse_raw_weeks()
+    # db.insert_weeks(weeks, league_info)
 
-    weeks = league.parse_raw_weeks()
-    db.insert_weeks(weeks, league_info)
+    matchups = league.parse_raw_matchups()
+
 
 
 if __name__ == '__main__':
