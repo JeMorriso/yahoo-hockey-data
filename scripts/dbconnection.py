@@ -109,4 +109,23 @@ class DBConnection:
 
         self.connection.commit()
 
+    def insert_weeks(self, weeks, league):
+        cursor = self.connection.cursor()
 
+        league_id = self.get_league_id(league)
+
+        for week in weeks:
+            sql = "select * from week where league_id = %s and week_number = %s"
+            cursor.execute(sql, (league_id, weeks.index(week)+1))
+            cursor.fetchall()
+            if cursor.rowcount == 0:
+                # makes it easier to insert into db
+                week['league_id'] = league_id
+                week['week_number'] = weeks.index(week)+1
+
+                sql = """insert into week
+                (league_id, week_number, start_date, end_date)
+                values(%(league_id)s, %(week_number)s, %(start_date)s, %(end_date)s)"""
+                cursor.execute(sql, week)
+
+        self.connection.commit()

@@ -53,3 +53,20 @@ class YahooLeagueData:
                           'manager': team[19]['managers'][0]['manager']['nickname']})
 
         return teams
+
+    def parse_raw_weeks(self):
+        teams = self.parse_raw_teams()
+        # here we're using the first team in the league's matchup endpoint to extract the beginning and end dates for each week
+        matchup_data = self.api_call(self.api_url + '/team/' + teams[0]['yahoo_key'] + '/matchups')
+
+        matchups = matchup_data['fantasy_content']['team'][1]['matchups']
+
+        # remove count key
+        matchups.pop('count', None)
+
+        weeks = []
+        for matchup in matchups:
+            weeks.append({'start_date': matchups[matchup]['matchup']['week_start'], \
+                          'end_date':  matchups[matchup]['matchup']['week_end']})
+
+        return weeks

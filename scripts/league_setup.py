@@ -22,7 +22,8 @@ def setup():
     teams = league.parse_raw_teams()
     db.insert_fantasy_teams(teams, league_info)
 
-    # insert weeks
+    weeks = league.parse_raw_weeks()
+    db.insert_weeks(weeks, league_info)
 
 
 if __name__ == '__main__':
