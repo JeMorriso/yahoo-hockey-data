@@ -35,11 +35,12 @@ CREATE TABLE league_scoring_category (
 );
 
 CREATE TABLE week (
+-- using id here because matchup references fantasy_team
+  id int PRIMARY KEY AUTO_INCREMENT,
   league_id int,
   week_number int,
   start_date date,
-  end_date date,
-  PRIMARY KEY (league_id, week_number)
+  end_date date
 );
 
 CREATE TABLE fantasy_team (
@@ -59,7 +60,8 @@ CREATE TABLE matchup (
   away_id int,
 --  home_score int,
 --  away_score int,
-  week
+-- using week_id instead of week because different leagues have different week structures
+  week_id int
 );
 
 CREATE TABLE roster (
