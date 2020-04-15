@@ -71,8 +71,6 @@ class DBConnection:
             cursor.execute(sql, (category['category_abbreviation'],))
             # fetchone returns a tuple
             category_id = cursor.fetchone()[0]
-            # clear the query
-            # cursor.fetchall()
 
             # now check the other table
             sql = """select * from league_scoring_category where
@@ -108,20 +106,21 @@ class DBConnection:
                 cursor.execute(sql, team)
 
         self.connection.commit()
+        cursor.close()
 
     def insert_weeks(self, weeks, league):
         cursor = self.connection.cursor()
 
         league_id = self.get_league_id(league)
 
-        for week in weeks:
+        for i, week in enumerate(weeks):
             sql = "select * from week where league_id = %s and week_number = %s"
-            cursor.execute(sql, (league_id, weeks.index(week)+1))
+            cursor.execute(sql, (league_id, i+1))
             cursor.fetchall()
             if cursor.rowcount == 0:
                 # makes it easier to insert into db
                 week['league_id'] = league_id
-                week['week_number'] = weeks.index(week)+1
+                week['week_number'] = i+1
 
                 sql = """insert into week
                 (league_id, week_number, start_date, end_date)
@@ -129,3 +128,36 @@ class DBConnection:
                 cursor.execute(sql, week)
 
         self.connection.commit()
+        cursor.close()
+
+    # teams, weeks must already be in db
+    def insert_matchups(self, matchups_dict, league):
+        cursor = self.connection.cursor();
+
+        team_ids = {}
+        # get all the team ids from the database
+        for yahoo_key in matchups_dict['team_keys']:
+            sql = "select id from fantasy_team where yahoo_key = %s"
+            cursor.execute(sql, (yahoo_key,))
+            # relying on teams being in database here, no error checking
+            team_ids[yahoo_key] = cursor.fetchone()[0]
+
+        for i, week in enumerate(matchups_dict['matchups_by_week']):
+            # get the week id
+            sql = "select id from week where league_id = %s and week_number = %s"
+            cursor.execute(sql, (self.get_league_id(league), i+1))
+            week_id = cursor.fetchone()[0]
+
+            for matchup in week:
+                # check if it's already in the db
+                sql = "select * from matchup where home_id = %s and away_id = %s and week_id = %s"
+                cursor.execute(sql, (team_ids[matchup[0]], team_ids[matchup[1]], week_id))
+                cursor.fetchall()
+                if cursor.rowcount == 0:
+                    sql = """insert into matchup
+                    (home_id, away_id, week_id)
+                    values(%s, %s, %s)"""
+                    cursor.execute(sql, (team_ids[matchup[0]], team_ids[matchup[1]], week_id))
+
+        self.connection.commit()
+        cursor.close()

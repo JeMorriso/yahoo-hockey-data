@@ -64,6 +64,7 @@ class YahooLeagueData:
         matchups.pop('count', None)
 
         weeks = []
+        # the weeks are sequential, so use index of weeks to figure out which week it is
         for matchup in matchups:
             weeks.append({'start_date': matchups[matchup]['matchup']['week_start'], \
                           'end_date':  matchups[matchup]['matchup']['week_end']})
@@ -80,13 +81,17 @@ class YahooLeagueData:
 
         # list of lists that store each matchup each week
         matchups_by_week = [[] for i in range(0, reg_season_weeks)]
+        # also store team_keys, it's easier on database side
+        team_keys = []
 
         for team in teams:
             matchup_data = self.api_call(self.api_url + '/team/' + team['yahoo_key'] + '/matchups')
 
             team_key = matchup_data['fantasy_content']['team'][0][0]['team_key']
+            team_keys.append(team_key)
 
             matchups = matchup_data['fantasy_content']['team'][1]['matchups']
+
             # remove count key
             matchups.pop('count', None)
 
@@ -104,5 +109,5 @@ class YahooLeagueData:
                     else:
                         matchups_by_week[week_index_zero].append([team_key])
 
-        return matchups_by_week
+        return {'team_keys': team_keys, 'matchups_by_week': matchups_by_week}
 

@@ -14,19 +14,19 @@ parser.add_argument('-i', '--league_id', type=int, required=True)
 
 def setup():
     league_info = league.parse_raw_league_data()
-    # db.insert_league_data(league_info)
-    #
-    # categories = league.parse_raw_scoring_categories()
-    # db.insert_scoring_categories(categories, league_info)
+    db.insert_league_data(league_info)
 
-    # teams = league.parse_raw_teams()
-    # db.insert_fantasy_teams(teams, league_info)
-    #
-    # weeks = league.parse_raw_weeks()
-    # db.insert_weeks(weeks, league_info)
+    categories = league.parse_raw_scoring_categories()
+    db.insert_scoring_categories(categories, league_info)
 
-    matchups = league.parse_raw_matchups()
+    teams = league.parse_raw_teams()
+    db.insert_fantasy_teams(teams, league_info)
 
+    weeks = league.parse_raw_weeks()
+    db.insert_weeks(weeks, league_info)
+
+    matchups_dict = league.parse_raw_matchups()
+    db.insert_matchups(matchups_dict, league_info)
 
 
 if __name__ == '__main__':
