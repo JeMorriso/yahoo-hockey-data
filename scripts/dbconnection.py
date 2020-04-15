@@ -12,6 +12,18 @@ class DBConnection:
             # os.getenv('PASSWORD') not working in pycharm
             password="moomoo")
 
+    # this makes me think that it's not useful to store both yahoo and my own IDs
+    def get_league_id(self, league):
+        cursor = self.connection.cursor()
+
+        # get the league id (the database id, not the yahoo id)
+        sql = "select id from league where yahoo_id = %s"
+        cursor.execute(sql, (league['league_id'],))
+        # fetchone returns a tuple
+        league_id = cursor.fetchone()[0]
+
+        return league_id
+
     def insert_league_data(self, league_object):
         cursor = self.connection.cursor()
 
@@ -33,7 +45,6 @@ class DBConnection:
 
         cursor.close()
 
-
     # league must already exist in league table
     def insert_scoring_categories(self, categories, league):
         cursor = self.connection.cursor()
@@ -53,11 +64,7 @@ class DBConnection:
                 cursor.execute(sql, category)
                 self.connection.commit()
 
-            # get the league id (the database id, not the yahoo id)
-            sql = "select id from league where yahoo_id = %s"
-            cursor.execute(sql, (league['league_id'],))
-            # fetchone returns a tuple
-            league_id = cursor.fetchone()[0]
+            league_id = self.get_league_id(league)
 
             # get the category id
             sql = "select id from scoring_category where category_abbreviation = %s"
@@ -80,5 +87,26 @@ class DBConnection:
         self.connection.commit()
         cursor.close()
 
+    # league must already exist in league table
+    def insert_fantasy_teams(self, teams, league):
+        cursor = self.connection.cursor()
 
-    # def
+        league_id = self.get_league_id(league)
+
+        for team in teams:
+            sql = "select * from fantasy_team where yahoo_key = %s"
+            cursor.execute(sql, (team['yahoo_key'],))
+            cursor.fetchall()
+            if cursor.rowcount == 0:
+                # makes it easier to insert into db
+                team['league_id'] = league_id
+
+                sql = """insert into fantasy_team 
+                (yahoo_key, yahoo_id, name, logo_url, manager, league_id)
+                values(%(yahoo_key)s, %(yahoo_id)s, %(name)s, %(logo_url)s, %(manager)s, %(league_id)s)"""
+
+                cursor.execute(sql, team)
+
+        self.connection.commit()
+
+

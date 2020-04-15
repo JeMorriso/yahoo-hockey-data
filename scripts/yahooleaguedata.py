@@ -50,6 +50,6 @@ class YahooLeagueData:
             team = teams_data[team]['team'][0]
             teams.append({'name': team[2]['name'], 'yahoo_key': team[0]['team_key'], \
                           'yahoo_id': team[1]['team_id'], 'logo_url': team[5]['team_logos'][0]['team_logo']['url'], \
-                          'managers': team[19]['managers'][0]['manager']['nickname']})
+                          'manager': team[19]['managers'][0]['manager']['nickname']})
 
         return teams
