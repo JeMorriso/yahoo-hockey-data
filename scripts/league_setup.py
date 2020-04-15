@@ -13,13 +13,14 @@ parser.add_argument('-i', '--league_id', type=int, required=True)
 
 
 def setup():
-    league_object = league.parse_raw_league_data()
-    db.insert_league_data(league_object)
+    league_info = league.parse_raw_league_data()
+    db.insert_league_data(league_info)
 
-    categories_object = league.parse_raw_scoring_categories()
-    db.insert_scoring_categories(categories_object, league_object)
+    categories = league.parse_raw_scoring_categories()
+    db.insert_scoring_categories(categories, league_info)
 
-    # insert fantasy teams
+    teams = league.parse_raw_teams()
+
     # insert weeks
 
 

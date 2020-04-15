@@ -43,14 +43,13 @@ CREATE TABLE week (
 );
 
 CREATE TABLE fantasy_team (
-  id int AUTO_INCREMENT,
+  id int PRIMARY KEY AUTO_INCREMENT,
   yahoo_key varchar(40),
   yahoo_id int,
   name varchar(40),
   logo_url varchar(255),
   manager varchar(200),
-  league_id int,
-  PRIMARY KEY (id, yahoo_key)
+  league_id int
 );
 
 CREATE TABLE matchup (
