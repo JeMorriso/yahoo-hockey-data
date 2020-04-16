@@ -18,11 +18,23 @@ class DBConnection:
 
         # get the league id (the database id, not the yahoo id)
         sql = "select id from league where yahoo_id = %s"
+        # using C-style string formatting with tuple in cursor.execute prevents SQL injection attacks
         cursor.execute(sql, (league['league_id'],))
         # fetchone returns a tuple
         league_id = cursor.fetchone()[0]
 
+        cursor.close()
         return league_id
+
+    def get_player(self, yahoo_key):
+        cursor = self.connection.cursor()
+
+        sql = "select * from player where yahoo_key = %s"
+        cursor.execute(sql, (yahoo_key,))
+        player = cursor.fetchone()[0]
+
+        cursor.close()
+        return player
 
     def insert_league_data(self, league_object):
         cursor = self.connection.cursor()
