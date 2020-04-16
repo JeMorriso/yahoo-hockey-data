@@ -114,11 +114,20 @@ class YahooLeagueData:
 
         return {'team_keys': team_keys, 'matchups_by_week': matchups_by_week}
 
-    def _find_player_nhl_team(self, player_data):
-        for dict_ in player_data:
-            if 'editorial_team_abbr' in dict_:
-                return dict_['editorial_team_abbr']
-        return None
+    # get a player's current NHL team for matching against NHL.com's API
+    # this function could be made a lot faster by making one call with all the player keys
+    def _get_player_nhl_team(self, player_key):
+        player_url = f"{self.api_url}/players;player_keys={player_key}"
+
+        player_data = self.api_call(player_url)
+        player_data = player_data['fantasy_content']['players']['0']['player'][0]
+        try:
+            return player_data[6]['editorial_team_abbr']
+        except KeyError:
+            for dict_ in player_data:
+                if 'editorial_team_abbr' in dict_:
+                    return dict_['editorial_team_abbr']
+            return None
 
     # using date here so that it is flexible with daily-updating leagues
     def parse_raw_rosters(self, date=None):
@@ -136,18 +145,15 @@ class YahooLeagueData:
             roster_cleaned = []
 
             for player in roster:
-                try:
-                    nhl_team = roster[player]['player'][0][6]['editorial_team_abbr']
-                except:
-                    nhl_team = self._find_player_nhl_team(roster[player]['player'][0])
+                nhl_team = self._get_player_nhl_team(roster[player]['player'][0][0]['player_key'])
 
                 # players list does not need to keep track of fantasy teams
                 players.append({'first_name': roster[player]['player'][0][2]['name']['first'],
                                        'last_name': roster[player]['player'][0][2]['name']['last'],
                                        'yahoo_id': roster[player]['player'][0][1]['player_id'],
                                        'yahoo_key': roster[player]['player'][0][0]['player_key'],
-                                       # NHL_team is for referencing NHL.com's API; doesn't go into player table
-                                       'NHL_team': nhl_team})
+                                       # current_NHL_team is for referencing NHL.com's API; doesn't go into player table
+                                       'current_NHL_team': nhl_team})
 
                 roster_cleaned.append({ # player_key doesn't go in roster table it is for getting player id from DB
                                         'player_key': roster[player]['player'][0][0]['player_key'],
