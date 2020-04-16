@@ -1,12 +1,15 @@
 from yahoo_oauth import OAuth2
 import json
+import os
 
 
 class YahooLeagueData:
     def __init__(self, league_url):
         self.api_url = "https://fantasysports.yahooapis.com/fantasy/v2"
         self.league_url = league_url
-        self.auth = OAuth2(None,None, from_file='../credentials.json', base_url=self.api_url)
+
+        print(os.getcwd())
+        self.auth = OAuth2(None, None, from_file='credentials.json', base_url=self.api_url)
 
     # execute API call and return python object from returned data
     def api_call(self, endpoint):
@@ -131,7 +134,6 @@ class YahooLeagueData:
             roster.pop('count', None)
 
             roster_cleaned = []
-            player_cleaned = []
 
             for player in roster:
                 try:
@@ -139,22 +141,23 @@ class YahooLeagueData:
                 except:
                     nhl_team = self._find_player_nhl_team(roster[player]['player'][0])
 
-                player_cleaned.append({'first_name': roster[player]['player'][0][2]['name']['first'],
+                # players list does not need to keep track of fantasy teams
+                players.append({'first_name': roster[player]['player'][0][2]['name']['first'],
                                        'last_name': roster[player]['player'][0][2]['name']['last'],
-                                       'yahoo_id': roster[player]['player'][0][1],
-                                       'yahoo_key': roster[player]['player'][0][0],
+                                       'yahoo_id': roster[player]['player'][0][1]['player_id'],
+                                       'yahoo_key': roster[player]['player'][0][0]['player_key'],
                                        # NHL_team is for referencing NHL.com's API; doesn't go into player table
                                        'NHL_team': nhl_team})
 
                 roster_cleaned.append({ # player_key doesn't go in roster table it is for getting player id from DB
-                                        'player_key': roster[player]['player'][0][0],
+                                        'player_key': roster[player]['player'][0][0]['player_key'],
                                         # similarly for team_key
                                         'team_key': team['yahoo_key'],
-                                        'selected_position': roster[player]['player'][1]['selected_position'][1]
+                                        'selected_position': roster[player]['player'][1]['selected_position'][1]['position']
                                         # dates not handled in this method since it was called with a date and weeks are variable
                                      })
 
-            players.append(player_cleaned)
             rosters.append(roster_cleaned)
 
-        return { 'rosters': rosters, 'players': players }
+        # this is a tuple being returned
+        return rosters, players
