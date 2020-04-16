@@ -68,17 +68,19 @@ CREATE TABLE roster (
   id int PRIMARY KEY AUTO_INCREMENT,
   team_id int,
   player_id int,
-  selected_position char,
-  status char,
+--  includes 'BN' and 'Util'
+  selected_position varchar(10),
   start_date date,
   end_date date
 );
 
 CREATE TABLE player (
   id int PRIMARY KEY AUTO_INCREMENT,
+--  using NHL's first and last name, not Yahoo's
   first_name varchar(40),
   last_name varchar(40),
   yahoo_id int,
+  yahoo_key varchar(40),
   nhl_id int,
   birth_date date,
   birth_state_province varchar(5),

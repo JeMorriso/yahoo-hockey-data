@@ -12,10 +12,11 @@ parser.add_argument('-t', '--league_type', required=True)
 parser.add_argument('-i', '--league_id', type=int, required=True)
 
 class LeagueDBComposite:
-    def __init__(self, league_url):
+    def __init__(self, league_url, setup=False):
         self.db = DBConnection()
         self.league = YahooLeagueData(league_url)
-        self.setup_league()
+        if setup:
+            self.setup_league()
 
     # gathers necessary information about the league as the first step, storing it to DB
     def setup_league(self):
@@ -41,6 +42,5 @@ if __name__ == '__main__':
     api_url = "https://fantasysports.yahooapis.com/fantasy/v2"
     league_url = api_url + "/leagues;league_keys=" + args.league_type + ".l." + str(args.league_id)
 
-    league_db_composite = LeagueDBComposite(league_url)
-    league_db_composite.setup_league()
+    league_db_composite = LeagueDBComposite(league_url, setup=True)
 
