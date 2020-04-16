@@ -11,22 +11,28 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--league_type', required=True)
 parser.add_argument('-i', '--league_id', type=int, required=True)
 
+class LeagueDBComposite:
+    def __init__(self, league_url):
+        self.db = DBConnection()
+        self.league = YahooLeagueData(league_url)
+        self.setup_league()
 
-def setup():
-    league_info = league.parse_raw_league_data()
-    db.insert_league_data(league_info)
+    # gathers necessary information about the league as the first step, storing it to DB
+    def setup_league(self):
+        league_info = self.league.parse_raw_league_data()
+        self.db.insert_league_data(league_info)
 
-    categories = league.parse_raw_scoring_categories()
-    db.insert_scoring_categories(categories, league_info)
+        categories = self.league.parse_raw_scoring_categories()
+        self.db.insert_scoring_categories(categories, league_info)
 
-    teams = league.parse_raw_teams()
-    db.insert_fantasy_teams(teams, league_info)
+        teams = self.league.parse_raw_teams()
+        self.db.insert_fantasy_teams(teams, league_info)
 
-    weeks = league.parse_raw_weeks()
-    db.insert_weeks(weeks, league_info)
+        weeks = self.league.parse_raw_weeks()
+        self.db.insert_weeks(weeks, league_info)
 
-    matchups_dict = league.parse_raw_matchups()
-    db.insert_matchups(matchups_dict, league_info)
+        matchups_dict = self.league.parse_raw_matchups()
+        self.db.insert_matchups(matchups_dict, league_info)
 
 
 if __name__ == '__main__':
@@ -35,8 +41,6 @@ if __name__ == '__main__':
     api_url = "https://fantasysports.yahooapis.com/fantasy/v2"
     league_url = api_url + "/leagues;league_keys=" + args.league_type + ".l." + str(args.league_id)
 
-    db = DBConnection()
-    league = YahooLeagueData(league_url)
-
-    setup()
+    league_db_composite = LeagueDBComposite(league_url)
+    league_db_composite.setup_league()
 
