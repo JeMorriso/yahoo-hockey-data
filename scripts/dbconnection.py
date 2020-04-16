@@ -26,12 +26,29 @@ class DBConnection:
         cursor.close()
         return league_id
 
+    def get_team_ids(self, team_keys):
+        cursor = self.connection.cursor()
+
+        team_ids = {}
+        # get all the team ids from the database
+        for yahoo_key in team_keys:
+            sql = "select id from fantasy_team where yahoo_key = %s"
+            cursor.execute(sql, (yahoo_key,))
+            # relying on teams being in database here, no error checking
+            team_ids[yahoo_key] = cursor.fetchone()[0]
+
+        cursor.close()
+        return team_ids
+
     def get_player(self, yahoo_key):
         cursor = self.connection.cursor()
 
         sql = "select * from player where yahoo_key = %s"
         cursor.execute(sql, (yahoo_key,))
-        player = cursor.fetchone()[0]
+        result = cursor.fetchone()
+        player = None
+        if result:
+            player = result[0]
 
         cursor.close()
         return player
@@ -146,13 +163,7 @@ class DBConnection:
     def insert_matchups(self, matchups_dict, league):
         cursor = self.connection.cursor();
 
-        team_ids = {}
-        # get all the team ids from the database
-        for yahoo_key in matchups_dict['team_keys']:
-            sql = "select id from fantasy_team where yahoo_key = %s"
-            cursor.execute(sql, (yahoo_key,))
-            # relying on teams being in database here, no error checking
-            team_ids[yahoo_key] = cursor.fetchone()[0]
+        team_ids = self.get_team_ids(matchups_dict['team_keys'])
 
         for i, week in enumerate(matchups_dict['matchups_by_week']):
             # get the week id
@@ -170,6 +181,12 @@ class DBConnection:
                     (home_id, away_id, week_id)
                     values(%s, %s, %s)"""
                     cursor.execute(sql, (team_ids[matchup[0]], team_ids[matchup[1]], week_id))
+
+        self.connection.commit()
+        cursor.close()
+
+    def insert_rosters(self):
+        cursor = self.connection.cursor()
 
         self.connection.commit()
         cursor.close()
