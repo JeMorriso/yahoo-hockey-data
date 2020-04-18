@@ -1,5 +1,6 @@
 import requests
 import json
+from utils import util
 
 class NHLConnection:
     def __init__(self):
@@ -10,8 +11,16 @@ class NHLConnection:
         r_json = json.dumps(r.json(), indent=4)
         return json.loads(r_json)
 
+    # NHL.com's player result is a list with elements in a particular order
     def parse_player(self, player):
-        pass
+
+        player_dict = { 'nhl_id': player[0],
+                        'birth_date': player[-5],
+                        'birth_state_province': player[-7],
+                        'nationality': player[-6],
+                        'height': util.height_to_int(player[5]),
+                        'weight': player[6] }
+        return player_dict
 
     def find_player_from_suggestions(self, player):
         # return suggested players based on last name query
