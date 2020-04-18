@@ -151,7 +151,21 @@ class YahooLeagueData:
                             break
                     else:
                         nhl_team = None
-                head[i]['nhl_team'] = nhl_team
+
+                if nhl_team is not None:
+                    nhl_team = nhl_team.upper()
+                    # changing to NHL.com's abbreviations
+                    if nhl_team == 'TB':
+                        nhl_team = 'TBL'
+                    elif nhl_team == 'MON':
+                        nhl_team = 'MTL'
+                    elif nhl_team == 'NJ':
+                        nhl_team = 'NJD'
+                    elif nhl_team == 'SJ':
+                        nhl_team = 'SJS'
+                    elif nhl_team == 'CLS':
+                        nhl_team = 'CBJ'
+                    head[i]['nhl_team'] = nhl_team
 
             players_with_teams.extend(head)
 
