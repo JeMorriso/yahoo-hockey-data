@@ -40,6 +40,8 @@ class DBConnection:
         cursor.close()
         return team_ids
 
+
+
     def get_player(self, yahoo_key):
         cursor = self.connection.cursor()
 
@@ -188,5 +190,25 @@ class DBConnection:
     def insert_rosters(self):
         cursor = self.connection.cursor()
 
+
         self.connection.commit()
         cursor.close()
+
+    def insert_players(self, players):
+        cursor = self.connection.cursor()
+
+        for player in players:
+            # check if player already in db
+            sql = "select * from player where yahoo_key = %s"
+            cursor.execute(sql, (player['yahoo_key'],))
+            cursor.fetchall()
+            if cursor.rowcount == 0:
+                print(player)
+                sql = """insert into player 
+                (first_name, last_name, yahoo_id, yahoo_key, nhl_id, birth_date, birth_state_province, nationality, height, weight)
+                values(%(first_name)s, %(last_name)s, %(yahoo_id)s, %(yahoo_key)s, %(nhl_id)s, %(birth_date)s, %(birth_state_province)s, %(nationality)s, %(height)s, %(weight)s)"""
+                cursor.execute(sql, player)
+
+        self.connection.commit()
+        cursor.close()
+
