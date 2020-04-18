@@ -1,5 +1,6 @@
 import mysql.connector
 import os
+import datetime
 
 
 class DBConnection:
@@ -40,8 +41,6 @@ class DBConnection:
         cursor.close()
         return team_ids
 
-
-
     def get_player(self, yahoo_key):
         cursor = self.connection.cursor()
 
@@ -54,6 +53,16 @@ class DBConnection:
 
         cursor.close()
         return player
+
+    def get_week(self, date, league_id):
+        cursor = self.connection.cursor()
+
+        sql = "select * from week where league_id = %s and start_date <= %s and end_date >= %s"
+        cursor.execute(sql, (league_id, date, date))
+        week = cursor.fetchone()
+
+        cursor.close()
+        return week[2], week[3], week[4]
 
     def insert_league_data(self, league_object):
         cursor = self.connection.cursor()
@@ -187,8 +196,10 @@ class DBConnection:
         self.connection.commit()
         cursor.close()
 
-    def insert_rosters(self):
+    def insert_rosters(self, rosters, date):
         cursor = self.connection.cursor()
+
+
 
 
         self.connection.commit()
