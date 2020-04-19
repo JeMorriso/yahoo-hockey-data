@@ -62,6 +62,7 @@ class DBConnection:
         week = cursor.fetchone()
 
         cursor.close()
+        # return week number, start and end dates
         return week[2], week[3], week[4]
 
     def insert_league_data(self, league_object):
@@ -196,11 +197,22 @@ class DBConnection:
         self.connection.commit()
         cursor.close()
 
-    def insert_rosters(self, rosters, date):
+    def insert_rosters(self, rosters, start_date, end_date):
         cursor = self.connection.cursor()
 
-
-
+        db_team_ids = self.get_team_ids([x['team_key'] for x in rosters])
+        for i, roster in enumerate(rosters):
+            for player in rosters[i]['roster']:
+                db_player_id = self.get_player(player['player_key'])
+                # check that same player, date combo has not been already inserted
+                sql = "select * from roster where player_id = %s and start_date = %s and end_date = %s"
+                cursor.execute(sql, (db_player_id, start_date, end_date))
+                cursor.fetchall()
+                if cursor.rowcount == 0:
+                    sql = """insert into roster
+                    (team_id, player_id, selected_position, start_date, end_date)
+                    values(%s, %s, %s, %s, %s)"""
+                    cursor.execute(sql, (db_team_ids[roster['team_key']], db_player_id, player['selected_position'], start_date, end_date))
 
         self.connection.commit()
         cursor.close()
