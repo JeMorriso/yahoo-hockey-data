@@ -186,7 +186,8 @@ class YahooLeagueData:
             # remove count key
             roster.pop('count', None)
 
-            roster_cleaned = []
+            # use dictionary so team_key not being needlessly repeated
+            roster_cleaned = { 'team_key': team['yahoo_key'], 'roster': []}
 
             for player in roster:
                 # nhl_team = self.get_players_nhl_teams(roster[player]['player'][0][0]['player_key'])
@@ -199,10 +200,9 @@ class YahooLeagueData:
                                        # current_NHL_team is for referencing NHL.com's API; doesn't go into player table
                                        #'current_NHL_team': nhl_team})
 
-                roster_cleaned.append({ # player_key doesn't go in roster table it is for getting player id from DB
+                # use nested dictionary here because we look up player id and team id using the keys
+                roster_cleaned['roster'].append({ # player_key doesn't go in roster table it is for getting player id from DB
                                         'player_key': roster[player]['player'][0][0]['player_key'],
-                                        # similarly for team_key
-                                        'team_key': team['yahoo_key'],
                                         'selected_position': roster[player]['player'][1]['selected_position'][1]['position']
                                         # dates not handled in this method since it was called with a date and weeks are variable
                                      })

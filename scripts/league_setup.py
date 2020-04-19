@@ -4,6 +4,7 @@ import argparse
 
 from dbconnection import DBConnection
 from yahooleaguedata import YahooLeagueData
+from nhl_connection import NHLConnection
 
 # not sure how to handle other league types yet
     # would need different database most likely
@@ -15,6 +16,7 @@ class LeagueDBComposite:
     def __init__(self, league_url, setup=False):
         self.db = DBConnection()
         self.league = YahooLeagueData(league_url)
+        self.nhl = NHLConnection()
         if setup:
             self.setup_league()
 
