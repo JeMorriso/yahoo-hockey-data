@@ -2,6 +2,7 @@ from league_setup import LeagueDBComposite
 import argparse
 import datetime
 import os
+import copy
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--league_type', required=True)
@@ -14,8 +15,15 @@ parser.add_argument('-d', '--date', type=datetime.date.fromisoformat)
 def roster_player_update(date):
     rosters, players = league_db_composite.league.parse_raw_rosters(datetime.datetime.strftime(date, "%Y-%m-%d"))
 
+    # need to get league information to get week from database
+    league = league_db_composite.league.parse_raw_league_data()
+    league_id = league_db_composite.db.get_league_id(league)
+
+    # figure out which week we're inserting roster data for
+    week, start_date, end_date = league_db_composite.db.get_week(date, league_id)
+
     player_update(players)
-    roster_update(date)
+    roster_update(rosters, start_date, end_date)
 
 
 def player_update(players):
@@ -29,27 +37,37 @@ def player_update(players):
         if db_player is None:
             new_players.append(player)
 
-    new_players_with_teams = league_db_composite.league.get_players_nhl_teams(new_players)
+    # this was causing big issues without copy
+    new_players = league_db_composite.league.get_players_nhl_teams(new_players)
 
-    for player in new_players_with_teams:
+    to_remove = []
+
+    for i, player in enumerate(new_players):
         player_list = league_db_composite.nhl.find_player_from_suggestions(player)
 
         # couldn't find player - treat this as inactive - remove them from the list
         # potential unexpected behaviour here
-        if player is None:
-            new_players_with_teams.remove(player)
+        if player_list is None:
+            to_remove.append(player)
 
         # otherwise, take player_list and turn it into a dictionary containing the necessary info
         # about the player from NHL.com, and update the player dictionary with it
         else:
+            print(player)
             player.update(league_db_composite.nhl.parse_player(player_list))
 
+    # remove inactive players (Klas Dahlbeck)
+    for x in to_remove:
+        new_players.remove(x)
+
     # commit all the new players to db
-    league_db_composite.db.insert_players(new_players_with_teams)
+    league_db_composite.db.insert_players(new_players)
 
 
-def roster_update(date):
-    league_db_composite.db.insert_rosters()
+def roster_update(rosters, start_date, end_date):
+    # check each player to see if their roster entry should be updated
+
+    league_db_composite.db.insert_rosters(rosters, start_date, end_date)
 
 
 
