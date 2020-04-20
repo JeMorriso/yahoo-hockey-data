@@ -65,6 +65,7 @@ class DBConnection:
         # return week number, start and end dates
         return week[2], week[3], week[4]
 
+    # get all players on some roster on a given date
     def get_player_ids_on_rosters(self, date):
         cursor = self.connection.cursor()
 
@@ -76,6 +77,26 @@ class DBConnection:
 
         # convert list of tuples into list of player_ids
         return [x[0] for x in player_ids]
+
+    def get_player_nhl_team(self, id, date):
+        cursor = self.connection.cursor()
+
+        sql = "select nhl_id from player_nhl_team where player_id = %s and start_date <= %s and end_date >= %s"
+        cursor.execute(sql, (id, date, date))
+        team_id = cursor.fetchone()
+
+        cursor.close()
+        return team_id
+
+    def get_NHL_team_ids(self):
+        cursor = self.connection.cursor()
+
+        sql = "select nhl_id from nhl_team"
+        cursor.execute(sql)
+        nhl_teams = cursor.fetchall()
+
+        cursor.close()
+        return [x[0] for x in nhl_teams]
 
     def insert_league_data(self, league_object):
         cursor = self.connection.cursor()
