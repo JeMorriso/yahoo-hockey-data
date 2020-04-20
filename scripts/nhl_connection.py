@@ -83,6 +83,19 @@ class NHLConnection:
 
         return boxscore['teams']
 
+    # makes more sense to have this method call parse_raw_boxscore directly then having 2 separate calls on client side
+    def parse_raw_boxscore_to_player_ids(self, game_id):
+        boxscore = self.parse_raw_boxscore(game_id)
+
+        player_stats = {}
+        for p_data in boxscore['away']['players'].values():
+            player_stats[p_data['person']['id']] = p_data['stats']
+
+        for p_data in boxscore['home']['players'].values():
+            player_stats[p_data['person']['id']] = p_data['stats']
+
+        return player_stats
+
     def parse_raw_skater_stats(self):
         pass
 
