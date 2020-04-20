@@ -65,6 +65,18 @@ class DBConnection:
         # return week number, start and end dates
         return week[2], week[3], week[4]
 
+    def get_player_ids_on_rosters(self, date):
+        cursor = self.connection.cursor()
+
+        sql = "select player_id from roster where start_date <= %s and end_date >= %s"
+        cursor.execute(sql, (date, date))
+        player_ids = cursor.fetchall()
+
+        cursor.close()
+
+        # convert list of tuples into list of player_ids
+        return [x[0] for x in player_ids]
+
     def insert_league_data(self, league_object):
         cursor = self.connection.cursor()
 
