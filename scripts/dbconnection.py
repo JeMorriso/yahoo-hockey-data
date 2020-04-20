@@ -197,6 +197,23 @@ class DBConnection:
         self.connection.commit()
         cursor.close()
 
+    def insert_NHL_teams(self, teams):
+        cursor = self.connection.cursor()
+
+        for team in teams:
+            sql = "select * from nhl_team where abbreviation = %s"
+            cursor.execute(sql, (team['abbreviation'],))
+            cursor.fetchall()
+            if cursor.rowcount == 0:
+                sql = """insert into nhl_team 
+                (nhl_id, name, abbreviation)
+                values(%(team_id)s, %(team_name)s, %(abbreviation)s)"""
+
+                cursor.execute(sql, team)
+
+        self.connection.commit()
+        cursor.close()
+
     def insert_rosters(self, rosters, start_date, end_date):
         cursor = self.connection.cursor()
 

@@ -38,6 +38,10 @@ class LeagueDBComposite:
         matchups_dict = self.league.parse_raw_matchups()
         self.db.insert_matchups(matchups_dict, league_info)
 
+        nhl_teams = self.nhl.parse_raw_NHL_teams()
+        self.db.insert_NHL_teams(nhl_teams)
+
+
     # get data from yahoo, and then insert into db
     def roster_player_update(self, date):
         rosters, players = self.league.parse_raw_rosters(datetime.datetime.strftime(date, "%Y-%m-%d"))
@@ -94,6 +98,16 @@ class LeagueDBComposite:
 
         self.db.insert_rosters(rosters, start_date, end_date)
 
+    def stats_update(self, date):
+        game_ids = self.nhl.parse_raw_daily_schedule(date)
+
+        boxscores = []
+        for game_id in game_ids:
+            boxscores.append(self.nhl.parse_raw_boxscore(game_id))
+
+        # retrieve all the players on rosters of teams that played on date
+        for boxscore in boxscores:
+            pass
 
 if __name__ == '__main__':
     args = parser.parse_args()
