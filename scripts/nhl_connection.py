@@ -11,6 +11,15 @@ class NHLConnection:
         r_json = json.dumps(r.json(), indent=4)
         return json.loads(r_json)
 
+    def parse_raw_NHL_teams(self):
+        teams_data = self.api_call("https://statsapi.web.nhl.com/api/v1/teams")
+
+        teams = []
+        for team in teams_data['teams']:
+            teams.append({'team_id': team['id'], 'team_name': team['name'], 'abbreviation': team['abbreviation']})
+
+        return teams
+
     # NHL.com's player result is a list with elements in a particular order
     def parse_player(self, player):
 
@@ -67,6 +76,12 @@ class NHLConnection:
             game_ids.append(game['gamePk'])
 
         return game_ids
+
+    def parse_raw_boxscore(self, game_id):
+        boxscore_url = self.NHL_base_url + "/game/{}/boxscore".format(game_id)
+        boxscore = self.api_call(boxscore_url)
+
+        return boxscore['teams']
 
     def parse_raw_skater_stats(self):
         pass
