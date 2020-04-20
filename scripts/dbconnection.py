@@ -54,6 +54,23 @@ class DBConnection:
         cursor.close()
         return player
 
+    def get_player_NHL_id(self, id_):
+        cursor = self.connection.cursor()
+
+        sql = "select nhl_id from player where id = %s"
+        cursor.execute(sql, (id_,))
+        result = cursor.fetchone()
+
+        # roster table may have players that aren't in player table because their NHL id could not be found,
+        # because they aren't active in the NHL (Klas Dahlbeck).
+        # foreign keys CAN have null values
+        nhl_id = None
+        if result is not None:
+            nhl_id = result[0]
+
+        cursor.close()
+        return nhl_id
+
     def get_week(self, date, league_id):
         cursor = self.connection.cursor()
 
