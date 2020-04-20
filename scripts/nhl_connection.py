@@ -49,3 +49,25 @@ class NHLConnection:
 
         # assume if we get here that the player is inactive.
         return None
+
+    # return all NHL.com game ids for a given date
+    def parse_raw_daily_schedule(self, date):
+        schedule_url = self.NHL_base_url + f"/schedule?date={date.strftime('%Y-%m-%d')}"
+        schedule = self.api_call(schedule_url)
+
+        if schedule['totalGames'] == 0:
+            return
+
+        game_ids = []
+        games = schedule['dates'][0]['games']
+        for game in games:
+            # not a regular season game
+            if game['gameType'] != 'R':
+                continue
+            game_ids.append(game['gamePk'])
+
+        return game_ids
+
+    def parse_raw_skater_stats(self):
+        pass
+
