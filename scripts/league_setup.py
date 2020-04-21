@@ -52,10 +52,32 @@ class LeagueDBComposite:
         # figure out which week we're inserting roster data for
         week, start_date, end_date = self.db.get_week(date, league_id)
 
-        self.player_update(players)
-        self.roster_update(rosters, start_date, end_date)
+        # this list is needed for players who don't return an id from NHL.com
+        # they should not be inserted into player nor roster tables
+        unavailable_players = []
+        self.player_update(players, unavailable_players)
+        # remove unavailable players from rosters
+        for p in unavailable_players:
+            for roster in rosters:
+                to_remove = []
+                for roster_p in roster['roster']:
+                    if p['yahoo_key'] == roster_p['player_key']:
+                        to_remove.append(roster_p)
+                for x in to_remove:
+                    print(roster)
+                    roster['roster'].remove(x)
+                    print(roster)
 
-    def player_update(self, players):
+
+        # use this Sunday as the end date because certain weeks are long but you can change your roster for the Monday in the middle
+        # 0 is Monday, 6 is Sunday
+        this_Sunday = start_date + datetime.timedelta(days=(6-start_date.weekday()))
+        if date <= this_Sunday:
+            self.roster_update(rosters, start_date, this_Sunday)
+        else:
+            self.roster_update(rosters, this_Sunday + datetime.timedelta(days=1), end_date)
+
+    def player_update(self, players, unavailable_players):
         # list of players to retrieve their NHL teams
         new_players = []
 
@@ -68,14 +90,13 @@ class LeagueDBComposite:
 
         new_players = self.league.get_players_nhl_teams(new_players)
 
-        to_remove = []
         for i, player in enumerate(new_players):
             player_list = self.nhl.find_player_from_suggestions(player)
 
             # couldn't find player - treat this as inactive - remove them from the list
             # potential unexpected behaviour here
             if player_list is None:
-                to_remove.append(player)
+                unavailable_players.append(player)
 
             # otherwise, take player_list and turn it into a dictionary containing the necessary info
             # about the player from NHL.com, and update the player dictionary with it
@@ -84,16 +105,39 @@ class LeagueDBComposite:
                 print(player)
 
         # remove inactive players (Klas Dahlbeck)
-        for x in to_remove:
+        for x in unavailable_players:
             new_players.remove(x)
 
         # commit all the new players to db
         self.db.insert_players(new_players)
 
     def roster_update(self, rosters, start_date, end_date):
-        # check each player to see if their roster entry should be updated
+        # list containing records that need to be inserted into roster table
+        insert_rosters = [{'team_key': x['team_key'], 'roster': []} for x in rosters]
 
-        self.db.insert_rosters(rosters, start_date, end_date)
+        team_ids = self.db.get_team_ids([x['team_key'] for x in rosters])
+        # dictionary comprehension is better than for loop
+        team_ids_inverse = {v: k for k, v in team_ids.items()}
+
+        # check each player to see if their roster entry should be updated
+        for i, roster in enumerate(rosters):
+            for player in roster['roster']:
+                db_id = self.db.get_player(player['player_key'])
+                # check the day before start_date to compare the last entry in roster table to the current player status
+                db_player = self.db.get_player_roster(db_id, start_date - datetime.timedelta(days=1))
+                if db_player is not None:
+                    # if team and position matches, update the entry in the db
+                    if team_ids_inverse[db_player[1]] == roster['team_key'] and db_player[3] == player['selected_position']:
+                        self.db.update_player_roster(db_id, start_date - datetime.timedelta(days=1), end_date)
+                    else:
+                        insert_rosters[i]['roster'].append(player)
+                # this branch should only be reached the first time a player is added to a roster (all players in first week for example)
+                else:
+                    print(f"player not found in db: {player}")
+                    #TODO: insert debug statement here
+                    insert_rosters[i]['roster'].append(player)
+
+        self.db.insert_rosters(insert_rosters, start_date, end_date)
 
     def stats_update(self, date):
         game_ids = self.nhl.parse_raw_daily_schedule(date)
