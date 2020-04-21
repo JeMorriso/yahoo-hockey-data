@@ -302,3 +302,45 @@ class DBConnection:
         self.connection.commit()
         cursor.close()
 
+    def insert_skater_stats(self, stats):
+        cursor = self.connection.cursor()
+
+        # check if record already in db
+        sql = "select * from skater_stats where skater_id = %s and date_ = %s"
+        cursor.execute(sql, (stats['skater_id'], stats['date_']))
+        cursor.fetchall()
+        if cursor.rowcount == 0:
+            sql = """insert into skater_stats
+            (skater_id, time_on_ice, assists, goals, shots, hits, powerplay_goals, powerplay_assists, penalty_minutes, 
+                faceoff_wins, faceoff_percentage, takeaways, giveaways, shorthanded_goals, shorthanded_assists, 
+                blocked_shots, plus_minus, even_strength_toi, powerplay_toi, shorthanded_toi, date_)
+            values(%(skater_id)s, %(time_on_ice)s, %(assists)s, %(goals)s, %(shots)s, %(hits)s, %(powerplay_goals)s, 
+            %(powerplay_assists)s, %(penalty_minutes)s, %(faceoff_wins)s, %(faceoff_percentage)s, %(takeaways)s, 
+            %(giveaways)s, %(shorthanded_goals)s, %(shorthanded_assists)s, %(blocked_shots)s, %(plus_minus)s, 
+            %(even_strength_toi)s, %(powerplay_toi)s, %(shorthanded_toi)s, %(date_)s)"""
+
+            cursor.execute(sql, stats)
+            self.connection.commit()
+
+        cursor.close()
+
+    def insert_goalie_stats(self, stats):
+        cursor = self.connection.cursor()
+
+        # check if record already in db
+        sql = "select * from goalie_stats where goalie_id = %s and date_ = %s"
+
+        cursor.execute(sql, (stats['goalie_id'], stats['date_']))
+        cursor.fetchall()
+        if cursor.rowcount == 0:
+            sql = """insert into goalie_stats
+            (goalie_id, time_on_ice, shots_against, saves, goals_against, save_percentage, shorthanded_shots_against,
+            shorthanded_saves, shorthanded_save_percentage, date_)
+            values(%(goalie_id)s, %(time_on_ice)s, %(shots_against)s, %(saves)s, %(goals_against)s, %(save_percentage)s,
+            %(shorthanded_shots_against)s, %(shorthanded_saves)s, %(shorthanded_save_percentage)s, %(date_)s)"""
+
+            cursor.execute(sql, stats)
+            self.connection.commit()
+
+        cursor.close()
+
