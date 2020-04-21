@@ -27,6 +27,7 @@ class DBConnection:
         cursor.close()
         return league_id
 
+    # return a dict mapping database ids to yahoo_keys
     def get_team_ids(self, team_keys):
         cursor = self.connection.cursor()
 
@@ -95,11 +96,21 @@ class DBConnection:
         # convert list of tuples into list of player_ids
         return [x[0] for x in player_ids]
 
-    def get_player_nhl_team(self, id, date):
+    def get_player_roster(self, id_, date):
+        cursor = self.connection.cursor()
+
+        sql = "select * from roster where player_id = %s and start_date <= %s and end_date >= %s"
+        cursor.execute(sql, (id_, date, date))
+        player = cursor.fetchone()
+
+        cursor.close()
+        return player
+
+    def get_player_nhl_team(self, id_, date):
         cursor = self.connection.cursor()
 
         sql = "select nhl_id from player_nhl_team where player_id = %s and start_date <= %s and end_date >= %s"
-        cursor.execute(sql, (id, date, date))
+        cursor.execute(sql, (id_, date, date))
         team_id = cursor.fetchone()
 
         cursor.close()
@@ -272,8 +283,10 @@ class DBConnection:
             for player in rosters[i]['roster']:
                 db_player_id = self.get_player(player['player_key'])
                 # check that same player, date combo has not been already inserted
-                sql = "select * from roster where player_id = %s and start_date = %s and end_date = %s"
-                cursor.execute(sql, (db_player_id, start_date, end_date))
+                #sql = "select * from roster where player_id = %s and start_date = %s and end_date = %s"
+                # I changed this line to fix the problem of long weeks detailed in roster_update.py
+                sql = "select * from roster where player_id = %s and start_date = %s"
+                cursor.execute(sql, (db_player_id, start_date))
                 cursor.fetchall()
                 if cursor.rowcount == 0:
                     sql = """insert into roster
@@ -344,3 +357,13 @@ class DBConnection:
 
         cursor.close()
 
+    # this method should only be called with start date on Monday, which is handled
+    def update_player_roster(self, player_id, start_date_minus_one, end_date):
+        cursor = self.connection.cursor()
+
+        # the current end date is one day before the start date
+        sql = "update roster set end_date = %s where player_id = %s and end_date = %s"
+        cursor.execute(sql, (end_date, player_id, start_date_minus_one))
+
+        self.connection.commit()
+        cursor.close()
