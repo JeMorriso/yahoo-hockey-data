@@ -41,7 +41,6 @@ class LeagueDBComposite:
         nhl_teams = self.nhl.parse_raw_NHL_teams()
         self.db.insert_NHL_teams(nhl_teams)
 
-
     # get data from yahoo, and then insert into db
     def roster_player_update(self, date):
         rosters, players = self.league.parse_raw_rosters(datetime.datetime.strftime(date, "%Y-%m-%d"))
@@ -67,11 +66,9 @@ class LeagueDBComposite:
             if db_player is None:
                 new_players.append(player)
 
-        # this was causing big issues without copy
         new_players = self.league.get_players_nhl_teams(new_players)
 
         to_remove = []
-
         for i, player in enumerate(new_players):
             player_list = self.nhl.find_player_from_suggestions(player)
 
@@ -83,8 +80,8 @@ class LeagueDBComposite:
             # otherwise, take player_list and turn it into a dictionary containing the necessary info
             # about the player from NHL.com, and update the player dictionary with it
             else:
-                print(player)
                 player.update(self.nhl.parse_player(player_list))
+                print(player)
 
         # remove inactive players (Klas Dahlbeck)
         for x in to_remove:
@@ -101,13 +98,38 @@ class LeagueDBComposite:
     def stats_update(self, date):
         game_ids = self.nhl.parse_raw_daily_schedule(date)
 
-        boxscores = []
+        # build dictionary of players appearing in boxscores on this date
+        # this way there is no need to keep track of player NHL teams, and no brute force necessary because dict
+        played_on_this_date = {}
         for game_id in game_ids:
-            boxscores.append(self.nhl.parse_raw_boxscore(game_id))
+            played_on_this_date.update(self.nhl.parse_raw_boxscore_to_player_ids(game_id))
 
-        # retrieve all the players on rosters of teams that played on date
-        for boxscore in boxscores:
-            pass
+        # retrieve all the players on rosters on date
+        db_player_ids = self.db.get_player_ids_on_rosters(date)
+        # get their NHL ids
+        nhl_ids = {}
+        for p_id in db_player_ids:
+            nhl_id = self.db.get_player_NHL_id(p_id)
+
+            if nhl_id is not None:
+                nhl_ids[nhl_id] = p_id
+
+        for p_id in nhl_ids.keys():
+            if p_id in played_on_this_date:
+                if 'skaterStats' in played_on_this_date[p_id]:
+                    player = self.nhl.parse_skater_stats(played_on_this_date[p_id]['skaterStats'])
+                    player['skater_id'] = nhl_ids[p_id]
+                    player['date_'] = datetime.datetime.strftime(date, "%Y-%m-%d")
+
+                    self.db.insert_skater_stats(player)
+
+                elif 'goalieStats' in played_on_this_date[p_id]:
+                    player = self.nhl.parse_goalie_stats(played_on_this_date[p_id]['goalieStats'])
+                    player['goalie_id'] = nhl_ids[p_id]
+                    player['date_'] = datetime.datetime.strftime(date, "%Y-%m-%d")
+
+                    self.db.insert_goalie_stats(player)
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
