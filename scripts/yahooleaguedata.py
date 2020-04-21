@@ -165,6 +165,12 @@ class YahooLeagueData:
                         nhl_team = 'SJS'
                     elif nhl_team == 'CLS':
                         nhl_team = 'CBJ'
+                    elif nhl_team == 'LA':
+                        nhl_team = 'LAK'
+                    elif nhl_team == 'ANH':
+                        nhl_team = 'ANA'
+                    elif nhl_team == 'WAS':
+                        nhl_team = 'WSH'
                     head[i]['nhl_team'] = nhl_team
 
             players_with_teams.extend(head)

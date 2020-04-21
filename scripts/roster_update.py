@@ -2,7 +2,6 @@ from league_setup import LeagueDBComposite
 import argparse
 import datetime
 import os
-import copy
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--league_type', required=True)
@@ -29,6 +28,7 @@ if __name__ == "__main__":
         if not args.end_date:
             args.end_date = datetime.datetime.today()
 
+        #TODO
         # get weeks from db
         sql = "select start_date from week"
 
