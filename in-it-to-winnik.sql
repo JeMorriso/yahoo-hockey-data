@@ -92,7 +92,7 @@ CREATE TABLE player (
 CREATE TABLE skater_stats (
   id int PRIMARY KEY AUTO_INCREMENT,
   skater_id int,
-  time_on_ice int,
+  time_on_ice varchar(10),
   assists int,
   goals int,
   shots int,
@@ -108,32 +108,37 @@ CREATE TABLE skater_stats (
   shorthanded_assists int,
   blocked_shots int,
   plus_minus int,
-  even_strength_toi int,
-  powerplay_toi int,
-  shorthanded_toi int
+  even_strength_toi varchar(10),
+  powerplay_toi varchar(10),
+  shorthanded_toi varchar(10),
+  date_ date
 );
 
 CREATE TABLE goalie_stats (
   id int PRIMARY KEY AUTO_INCREMENT,
   goalie_id int,
+  time_on_ice varchar(10),
   shots_against int,
   saves int,
   goals_against int,
   save_percentage decimal,
-  goals_against_average decimal,
   shorthanded_shots_against int,
   shorthanded_saves int,
-  shorthanded_save_percentage decimal
+  shorthanded_save_percentage decimal,
+  date_ date
 );
 
+-- these last 2 tables are irrelevant at the moment due to design change
 CREATE TABLE player_nhl_team (
   id int PRIMARY KEY AUTO_INCREMENT,
   player_id int,
   start_date date,
   end_date date,
+--  nhl team's nhl.com id
   nhl_id int
 );
 
+-- don't really need to add a new ID here
 CREATE TABLE nhl_team (
   nhl_id int PRIMARY KEY,
   name varchar(40),
