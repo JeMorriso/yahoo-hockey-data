@@ -31,6 +31,60 @@ class NHLConnection:
                         'weight': player[6] }
         return player_dict
 
+    def parse_skater_stats(self, player):
+        faceoff_percentage = 0.00
+        # make sure not dividing by zero
+        try:
+            faceoff_percentage = float(player['faceOffWins']) / float(player['faceOffWins'] + player['faceoffTaken'])
+        except ZeroDivisionError:
+            pass
+
+        player_dict = {
+            'time_on_ice': player['timeOnIce'],
+            'assists': player['assists'],
+            'goals': player['goals'],
+            'shots': player['shots'],
+            'hits': player['hits'],
+            'powerplay_goals': player['powerPlayGoals'],
+            'powerplay_assists': player['powerPlayAssists'],
+            'penalty_minutes': player['penaltyMinutes'],
+            'faceoff_wins': player['faceOffWins'],
+            'faceoff_percentage': faceoff_percentage,
+            'takeaways': player['takeaways'],
+            'giveaways': player['giveaways'],
+            'shorthanded_goals': player['shortHandedGoals'],
+            'shorthanded_assists': player['shortHandedAssists'],
+            'blocked_shots': player['blocked'],
+            'plus_minus': player['plusMinus'],
+            'even_strength_toi': player['evenTimeOnIce'],
+            'powerplay_toi': player['powerPlayTimeOnIce'],
+            'shorthanded_toi': player['shortHandedTimeOnIce']
+        }
+
+        return player_dict
+
+    def parse_goalie_stats(self, player):
+        shorthanded_save_percentage = 0.00
+        # make sure not dividing by zero
+        try:
+            shorthanded_save_percentage = float(player['shortHandedSaves'])/float(player['shortHandedShotsAgainst'])
+        except ZeroDivisionError:
+            pass
+
+        player_dict = {
+            'time_on_ice': player['timeOnIce'],
+            'shots_against': player['shots'],
+            'saves': player['saves'],
+            'goals_against': player['goals'],
+            'save_percentage': player['savePercentage']/100,
+            'shorthanded_shots_against': player['shortHandedShotsAgainst'],
+            'shorthanded_saves': player['shortHandedSaves'],
+            # for some reason Shorthanded save percentage not in result
+            'shorthanded_save_percentage': shorthanded_save_percentage
+        }
+
+        return player_dict
+
     def find_player_from_suggestions(self, player):
         # return suggested players based on last name query
         suggestions = self.api_call(f"https://suggest.svc.nhl.com/svc/suggest/v1/minactiveplayers/{player['last_name']}")
