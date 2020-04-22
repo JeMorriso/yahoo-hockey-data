@@ -28,7 +28,10 @@ if __name__ == "__main__":
         if not args.end_date:
             args.end_date = datetime.datetime.today()
 
-        #TODO
+        current_date = args.start_date
+        while current_date <= args.end_date:
+            league_db_composite.stats_update(current_date)
+            current_date += datetime.timedelta(days=1)
 
     # only updating rosters for 1 day
     else:
