@@ -145,8 +145,9 @@ class LeagueDBComposite:
         # build dictionary of players appearing in boxscores on this date
         # this way there is no need to keep track of player NHL teams, and no brute force necessary because dict
         played_on_this_date = {}
-        for game_id in game_ids:
-            played_on_this_date.update(self.nhl.parse_raw_boxscore_to_player_ids(game_id))
+        if game_ids is not None:
+            for game_id in game_ids:
+                played_on_this_date.update(self.nhl.parse_raw_boxscore_to_player_ids(game_id))
 
         # retrieve all the players on rosters on date
         db_player_ids = self.db.get_player_ids_on_rosters(date)
@@ -155,8 +156,12 @@ class LeagueDBComposite:
         for p_id in db_player_ids:
             nhl_id = self.db.get_player_NHL_id(p_id)
 
+            # should never be None - need to improve error handling from db.get_player_NHL_id
             if nhl_id is not None:
                 nhl_ids[nhl_id] = p_id
+            else:
+                # TODO: log error
+                pass
 
         for p_id in nhl_ids.keys():
             if p_id in played_on_this_date:

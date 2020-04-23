@@ -101,7 +101,7 @@ CREATE TABLE skater_stats (
   powerplay_assists int,
   penalty_minutes int,
   faceoff_wins int,
-  faceoff_percentage decimal,
+  faceoff_percentage decimal(6,5),
   takeaways int,
   giveaways int,
   shorthanded_goals int,
@@ -121,10 +121,10 @@ CREATE TABLE goalie_stats (
   shots_against int,
   saves int,
   goals_against int,
-  save_percentage decimal,
+  save_percentage decimal(6,5),
   shorthanded_shots_against int,
   shorthanded_saves int,
-  shorthanded_save_percentage decimal,
+  shorthanded_save_percentage decimal(6,5),
   date_ date
 );
 

@@ -35,7 +35,7 @@ class NHLConnection:
         faceoff_percentage = 0.00
         # make sure not dividing by zero
         try:
-            faceoff_percentage = float(player['faceOffWins']) / float(player['faceOffWins'] + player['faceoffTaken'])
+            faceoff_percentage = float(player['faceOffWins']) / float(player['faceoffTaken'])
         except ZeroDivisionError:
             pass
 
@@ -64,7 +64,7 @@ class NHLConnection:
         return player_dict
 
     def parse_goalie_stats(self, player):
-        shorthanded_save_percentage = 0.00
+        shorthanded_save_percentage = None
         # make sure not dividing by zero
         try:
             shorthanded_save_percentage = float(player['shortHandedSaves'])/float(player['shortHandedShotsAgainst'])
@@ -75,8 +75,9 @@ class NHLConnection:
             'time_on_ice': player['timeOnIce'],
             'shots_against': player['shots'],
             'saves': player['saves'],
-            'goals_against': player['goals'],
-            'save_percentage': player['savePercentage']/100,
+            'goals_against': player['shots'] - player['saves'],
+            # if a goalie makes no saves, and has no shots against, then 'savePercentage' does not appear as a key! tricky
+            'save_percentage': player['savePercentage']/100 if 'savePercentage' in player else None,
             'shorthanded_shots_against': player['shortHandedShotsAgainst'],
             'shorthanded_saves': player['shortHandedSaves'],
             # for some reason Shorthanded save percentage not in result
