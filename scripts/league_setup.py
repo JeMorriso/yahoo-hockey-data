@@ -27,6 +27,7 @@ class LeagueDBComposite:
         self.db.insert_league_data(league_info)
 
         categories = self.league.parse_raw_scoring_categories()
+        categories = self.append_snake_case_categories(categories, self.nhl.categories)
         self.db.insert_scoring_categories(categories, league_info)
 
         teams = self.league.parse_raw_teams()
@@ -40,6 +41,34 @@ class LeagueDBComposite:
 
         nhl_teams = self.nhl.parse_raw_NHL_teams()
         self.db.insert_NHL_teams(nhl_teams)
+
+    def append_snake_case_categories(self, categories, nhl_categories):
+        cat_snake_dict = {'G': 'goals', 'A': 'assists', 'PIM': 'penalty_minutes', 'PPG': 'powerplay_goals', 'PPA': 'powerplay_assists', \
+                    'SHP': 'shorthanded_points', 'GWG': 'game_winning_goals', 'SOG': 'shots_on_goal', 'FW': 'faceoff_wins', \
+                    'HIT': 'hits', 'BLK': 'blocks', 'W': 'wins', 'GA': 'goals_against', 'GAA': 'goals_against_average', \
+                    'SV': 'saves', 'SA': 'shots_against', 'SV%': 'save_percentage', 'SHO': 'shutouts'}
+
+        for cat in categories:
+            cat['category_snake_case'] = cat_snake_dict[cat['category_abbreviation']]
+
+        # turn categories into a dict for adding NHL categories
+        categories_dict = { x['category_snake_case']: x for x in categories}
+
+        for k, v in nhl_categories['skater'].items():
+            # not a category being tracked in the fantasy league
+            if k not in categories_dict:
+                # don't need abbrev for NHL categories, only yahoo
+                categories_dict[k] = {'category_abbreviation': None, 'category_name': v, 'position_type': 'skater', \
+                                        'is_fantasy_category': False, 'category_snake_case': k}
+
+        for k, v in nhl_categories['goalie'].items():
+            # not a category being tracked in the fantasy league
+            if k not in categories_dict:
+                # don't need abbrev for NHL categories, only yahoo
+                categories_dict[k] = {'category_abbreviation': None, 'category_name': v, 'position_type': 'goalie', \
+                                        'is_fantasy_category': False, 'category_snake_case': k}
+
+        return list(categories_dict.values())
 
     # get data from yahoo, and then insert into db
     def roster_player_update(self, date):

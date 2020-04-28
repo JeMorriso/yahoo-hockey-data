@@ -36,7 +36,8 @@ class YahooLeagueData:
             position = 'skater' if category_dict['stat']['position_type'] == 'P' else 'goalie'
             scoring_categories.append({ 'category_abbreviation': category_dict['stat']['display_name'], \
                 'category_name': category_dict['stat']['name'], \
-                'position_type': position})
+                'position_type': position, \
+                'is_fantasy_category': True})
 
         return scoring_categories
 

@@ -20,8 +20,10 @@ CREATE TABLE league (
 CREATE TABLE scoring_category (
   id int PRIMARY KEY AUTO_INCREMENT,
   category_name varchar(40),
+  category_snake_case varchar(100),
   category_abbreviation varchar(5),
-  position_type varchar(40)
+  position_type varchar(40),
+  is_fantasy_category boolean
 );
 
 -- junction table between league and scoring category

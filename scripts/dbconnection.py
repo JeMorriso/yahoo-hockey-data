@@ -159,9 +159,9 @@ class DBConnection:
             cursor.execute(sql, (category['category_abbreviation'],))
             cursor.fetchall()
             if cursor.rowcount == 0:
-                sql = ("insert into scoring_category"
-                        "(category_name, category_abbreviation, position_type)"
-                        "values(%(category_name)s, %(category_abbreviation)s, %(position_type)s)")
+                sql = """insert into scoring_category
+                        (category_name, category_snake_case, category_abbreviation, position_type, is_fantasy_category)
+                        values(%(category_name)s, %(category_snake_case)s, %(category_abbreviation)s, %(position_type)s, %(is_fantasy_category)s)"""
         
                 cursor.execute(sql, category)
                 self.connection.commit()
@@ -169,8 +169,8 @@ class DBConnection:
             league_id = self.get_league_id(league)
 
             # get the category id
-            sql = "select id from scoring_category where category_abbreviation = %s"
-            cursor.execute(sql, (category['category_abbreviation'],))
+            sql = "select id from scoring_category where category_snake_case = %s"
+            cursor.execute(sql, (category['category_snake_case'],))
             # fetchone returns a tuple
             category_id = cursor.fetchone()[0]
 

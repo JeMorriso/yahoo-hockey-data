@@ -5,6 +5,13 @@ from utils import util
 class NHLConnection:
     def __init__(self):
         self.NHL_base_url = "https://statsapi.web.nhl.com/api/v1/"
+        #TODO: fill these in! For now I know which ones are from Yahoo
+        self.categories =  {'skater': {'time_on_ice': 'Time On Ice', 'assists': None, 'goals': None, 'shots_on_goal': None, 'hits': None, 'powerplay_goals': None, \
+                            'powerplay_assists': None, 'penalty_minutes': None, 'faceoff_wins': None, 'faceoff_percentage': 'Faceoff Percentage', \
+                            'takeaways': 'Takeaways', 'giveaways': 'Giveaways', 'shorthanded_goals': 'Shorthanded Goals', 'shorthanded_assists': 'Shorthanded Assists', \
+                            'blocks': None, 'plus_minus': '+/-', 'even_strength_toi': 'Even-strength Time On Ice', 'powerplay_toi': 'Powerplay Time On Ice','shorthanded_toi': 'Shorthanded Time On Ice'},
+                             'goalie': {'time_on_ice': 'Time On Ice', 'shots_against': None, 'saves': None, 'goals_against': None, 'save_percentage': None, \
+                            'shorthanded_shots_against': 'Shorthanded Shots Against', 'shorthanded_saves': 'Shorthanded Saves', 'shorthanded_save_percentage': 'Shorthanded Save Percentage'}}
 
     def api_call(self, endpoint):
         r = requests.get(endpoint)
