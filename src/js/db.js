@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const util = require('util');
 
 require('dotenv').config();
 
@@ -10,4 +11,12 @@ const db = mysql.createPool({
   database: process.env.DATABASE
 });
 
-module.exports = db;
+// const { queryPromise, closePromise } = [db.query, db.end].map(util.promisify);
+// const queryPromise = util.promisify(db.query);
+// const closePromise = util.promisify(db.end);
+
+// need to bind 'this' to mysql pool because otherwise get 'undefined' for Pool prototype in mysql module
+const queryPromise = util.promisify(db.query).bind(db);
+const closePromise = util.promisify(db.end).bind(db);
+
+module.exports = { queryPromise, closePromise }
