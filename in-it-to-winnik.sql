@@ -93,7 +93,7 @@ CREATE TABLE player (
 
 CREATE TABLE skater_stats (
   id int PRIMARY KEY AUTO_INCREMENT,
-  skater_id int,
+  player_id int,
   time_on_ice varchar(10),
   assists int,
   goals int,
@@ -118,7 +118,7 @@ CREATE TABLE skater_stats (
 
 CREATE TABLE goalie_stats (
   id int PRIMARY KEY AUTO_INCREMENT,
-  goalie_id int,
+  player_id int,
   time_on_ice varchar(10),
   shots_against int,
   saves int,
@@ -162,9 +162,9 @@ ALTER TABLE roster ADD FOREIGN KEY (team_id) REFERENCES fantasy_team (id);
 
 ALTER TABLE roster ADD FOREIGN KEY (player_id) REFERENCES player (id);
 
-ALTER TABLE skater_stats ADD FOREIGN KEY (skater_id) REFERENCES player (id);
+ALTER TABLE skater_stats ADD FOREIGN KEY (player_id) REFERENCES player (id);
 
-ALTER TABLE goalie_stats ADD FOREIGN KEY (goalie_id) REFERENCES player (id);
+ALTER TABLE goalie_stats ADD FOREIGN KEY (player_id) REFERENCES player (id);
 
 ALTER TABLE player_nhl_team ADD FOREIGN KEY (player_id) REFERENCES player (id);
 
