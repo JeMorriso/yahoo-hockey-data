@@ -1,0 +1,7 @@
+.chart-container {
+  position: relative;
+  margin: auto;
+  /* 80% viewport width and height - from chartjs docs*/
+  height: 80vh;
+  width: 80vw;
+}

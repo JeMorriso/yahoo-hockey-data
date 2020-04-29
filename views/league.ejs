@@ -1,0 +1,16 @@
+<%- include("partials/header") %>
+<link rel="stylesheet" href="/css/league.css">
+</head>
+  <%- include("partials/navbar") %>
+  <h1>League</h1>
+<body>
+
+<!-- use container to update canvas render and display sizes as per chartjs docs-->
+<div class="chart-container">
+  <canvas id="league-graph" data-title='<%=category%>'></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script src="/js/leagueGraph.js"></script>
+
+<%- include("partials/footer") %>
