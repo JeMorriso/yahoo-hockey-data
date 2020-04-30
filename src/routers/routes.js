@@ -10,9 +10,9 @@ router.get('/', (req, res) => {
 });
 
 // callback must declared as async because we are using 'await' inside
-router.get('/league', async (req, res) => {
+router.get('/chart', async (req, res) => {
   if (req.query.start_date !== undefined) {
-  start_date = req.query.start_date;
+    start_date = req.query.start_date;
   } else {
     start_date = req.app.locals.start_date;
   }
@@ -65,8 +65,6 @@ router.get('/league', async (req, res) => {
     result = await queryPromise(sql, [statsTable, start_date, end_date]);
     console.log(result);
 
-
-
   } catch (err) {
     console.log(err);
   } finally {
@@ -74,7 +72,11 @@ router.get('/league', async (req, res) => {
     // await closePromise();
   }
 
-  res.render('league', { category });
+  res.json({ category, start_date, end_date })
+})
+
+router.get('/league', (req, res) => {
+  res.render('league');
 })
 
 router.get('/matchups', (req, res) => {
