@@ -4,22 +4,29 @@ const { queryPromise, closePromise } = require('../js/db');
 const { getDaysArray } = require('../js/utils')
 
 const getChartData = async (req, res, next) => {
-  if (req.query.start_date !== undefined) {
+  var start_date, end_date, category_snake_case;
+  // defaults
+  if (req.query.start_date === undefined || req.query.end_date === undefined) {
+    start_date = res.locals.min_date;
+    // Don't show future dates on graph
+    // TODO: test this is working correctly
+    if (Date.now() < new Date(res.locals.max_date).getTime()) {
+      // end_date = new Date().toISOString().substring(0,10);
+
+      // for now, because league is paused. 
+      end_date = "2020-03-02";
+    } else {
+      end_date = res.locals.max_date;
+    }
+  } else {
     start_date = req.query.start_date;
-  } else {
-    start_date = req.app.locals.start_date;
-  }
-
-  if (req.query.end_date !== undefined) {
     end_date = req.query.end_date;
-  } else {
-    end_date = req.app.locals.end_date;
   }
-
-  if (req.query.category_snake_case !== undefined) {
-    category_snake_case = req.query.category_snake_case;
-  } else {
+  // default
+  if (req.query.category === undefined) {
     category_snake_case = req.app.locals.category_snake_case;
+  } else {
+    category_snake_case = req.query.category;
   }
 
   try {
@@ -90,8 +97,15 @@ const getChartData = async (req, res, next) => {
   next();
 };
 
-const getMinMaxDates = async _ => {
-  
+// Minimum and Maximum dates for flatpickr and default chart
+const getMinMaxDates = async (req, res, next) => {
+  sql = "select start_date, end_date from league";
+  // const is block-scoped
+  const result = await queryPromise(sql);
+  res.locals.min_date = result[0].start_date.toISOString().substring(0,10);
+  res.locals.max_date = result[0].end_date.toISOString().substring(0,10);
+
+  next();
 };
 
 module.exports = { getMinMaxDates, getChartData }
