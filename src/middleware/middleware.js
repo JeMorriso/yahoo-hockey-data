@@ -1,9 +1,9 @@
 // Promisified mysql functions
 const { queryPromise, closePromise } = require('../js/db');
 // utility functions
-const { getDaysArray } = require('./utils')
+const { getDaysArray } = require('../js/utils')
 
-const getChartData = async (req) => {
+const getChartData = async (req, res, next) => {
   if (req.query.start_date !== undefined) {
     start_date = req.query.start_date;
   } else {
@@ -32,7 +32,7 @@ const getChartData = async (req) => {
     statsTable = `${position_type}_stats`;
 
     // const is block-scoped!
-    var category = result[0].category_name;
+    res.locals.category = result[0].category_name;
 
     sql = `select name from fantasy_team;`;
     result = await queryPromise(sql);
@@ -82,10 +82,16 @@ const getChartData = async (req) => {
     // await closePromise();
   }
 
-  colours = ['rgb(2,55, 190, 11)', 'rgb(251, 86, 7)', 'rgb(255, 0, 110)', 'rgb(131, 56, 236)', 'rgb(58, 134, 255)', 'rgb(239, 71, 111)', 'rgb(255, 209, 102)', 'rgb(6, 214, 160)', 'rgb(17, 138, 178)', 'rgb(7, 59, 76)', 'rgb(21, 96, 100)', 'rgb(251, 143, 103)']
-  dates = getDaysArray(new Date(start_date), new Date(end_date)); 
+  res.locals.teamStats = teamStats;
 
-  return { category, dates, colours, teamStats };
+  res.locals.colours = ['rgb(2,55, 190, 11)', 'rgb(251, 86, 7)', 'rgb(255, 0, 110)', 'rgb(131, 56, 236)', 'rgb(58, 134, 255)', 'rgb(239, 71, 111)', 'rgb(255, 209, 102)', 'rgb(6, 214, 160)', 'rgb(17, 138, 178)', 'rgb(7, 59, 76)', 'rgb(21, 96, 100)', 'rgb(251, 143, 103)']
+  res.locals.dates = getDaysArray(new Date(start_date), new Date(end_date)); 
+
+  next();
 };
 
-module.exports = { getChartData }
+const getMinMaxDates = async _ => {
+  
+};
+
+module.exports = { getMinMaxDates, getChartData }
