@@ -108,4 +108,13 @@ const getMinMaxDates = async (req, res, next) => {
   next();
 };
 
-module.exports = { getMinMaxDates, getChartData }
+const getCategories = async (req, res, next) => {
+  sql = "select category_name from scoring_category";
+  const result = await queryPromise(sql);
+  res.locals.categories = [];
+  result.forEach(el => res.locals.categories.push(el.category_name));
+  next();
+}
+
+module.exports = { getMinMaxDates, getChartData, getCategories }
+
