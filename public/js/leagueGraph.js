@@ -1,9 +1,3 @@
-const getChartData = async _ => {
-    const response = await fetch('http://localhost:3000/chart')
-    const data = await response.json();
-    return data;
-}
-
 // use data provided from AJAX request to build chart
 // function expressions are NOT hoisted, so this must appear above any calling code
 const buildChartData = rawData => {
@@ -22,9 +16,25 @@ const buildChartData = rawData => {
     return data;
 }
 
+const getChartData = async _ => {
+    const response = await fetch('http://localhost:3000/chart');
+    const data = await response.json();
+    return data;
+}
+
 // cannot use await here because not inside an async function
 getChartData().then(data => {
     const chartData = buildChartData(data);
+
+    flatpickr('#datepicker', {
+        altInput: true,
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d",
+        mode: "range",
+        // maxDate doesn't work properly if not converted to Date first
+        minDate: new Date(data.min_date),
+        maxDate: new Date(data.max_date)
+    });
 
     const myChart = new Chart(ctx, {
         type: 'line',
