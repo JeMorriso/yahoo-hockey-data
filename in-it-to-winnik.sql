@@ -97,7 +97,7 @@ CREATE TABLE skater_stats (
   time_on_ice varchar(10),
   assists int,
   goals int,
-  shots int,
+  shots_on_goal int,
   hits int,
   powerplay_goals int,
   powerplay_assists int,

@@ -6,7 +6,7 @@ const { getDaysArray } = require('../js/utils')
 const getChartData = async (req, res, next) => {
   var start_date, end_date, category_snake_case;
   // defaults
-  if (req.query.start_date === undefined || req.query.end_date === undefined) {
+  if (req.body.start_date === undefined || req.body.end_date === undefined) {
     start_date = res.locals.min_date;
     // Don't show future dates on graph
     // TODO: test this is working correctly
@@ -19,20 +19,27 @@ const getChartData = async (req, res, next) => {
       end_date = res.locals.max_date;
     }
   } else {
-    start_date = req.query.start_date;
-    end_date = req.query.end_date;
+    start_date = req.body.start_date;
+    end_date = req.body.end_date;
   }
   // default
-  if (req.query.category === undefined) {
+  if (req.body.category === undefined) {
     category_snake_case = req.app.locals.category_snake_case;
   } else {
-    category_snake_case = req.query.category;
+    // get the snake case version of the category
+    try {
+      sql = "select category_snake_case from scoring_category where category_name = ?;";
+      let result = await queryPromise(sql, req.body.category);
+      category_snake_case = result[0].category_snake_case;
+    } catch (err) {
+      console.log(err);
+    } 
   }
-
+  
   try {
     // figure out if category is skater or goalie
     sql = "select position_type, category_name from scoring_category where category_snake_case = ?;";
-    var result = await queryPromise(sql, category_snake_case);
+    let result = await queryPromise(sql, category_snake_case);
 
     const position_type = result[0].position_type; 
     console.log(position_type);
@@ -109,7 +116,7 @@ const getMinMaxDates = async (req, res, next) => {
 };
 
 const getCategories = async (req, res, next) => {
-  sql = "select category_name from scoring_category";
+  sql = "select category_name from scoring_category where category_snake_case != 'shorthanded_points';";
   const result = await queryPromise(sql);
   res.locals.categories = [];
   result.forEach(el => res.locals.categories.push(el.category_name));
