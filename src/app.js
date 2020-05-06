@@ -10,6 +10,9 @@ const routes = require('./routers/routes');
 // query parser is enabled by default - see Express docs
 app.set('view engine', 'ejs');
 
+// parsing json into req.body
+app.use(express.json());
+
 // serve the public directory
 app.use(express.static(path.join(__dirname, '../public')));
 app.use("/dist", express.static(path.join(__dirname, '../dist')))

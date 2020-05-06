@@ -1,7 +1,6 @@
 const express = require('express');
 
 //  JSON chart API
-// const { getChartData } = require('../js/chart')
 const { getMinMaxDates, getChartData, getCategories } = require('../middleware/middleware')
 
 const router = express.Router();
@@ -10,6 +9,7 @@ const router = express.Router();
 // Min / Max is above in middleware stack so getChartData can use start and end dates
 router.use('/chart', getMinMaxDates);
 router.use('/chart', getChartData);
+router.use('/flatpickr', getMinMaxDates);
 router.use('/league', getCategories);
 
 router.get('/', (req, res) => {
@@ -17,14 +17,19 @@ router.get('/', (req, res) => {
 });
 
 // this route is getting called by AJAX client-side graph javascript
-router.get('/chart', (req, res, next) => {
+router.post('/chart', (req, res, next) => {
   // not sure if this is best practice
   res.json({ category: res.locals.category, 
     dates: res.locals.dates, 
     colours: res.locals.colours, 
-    teamStats: res.locals.teamStats,
+    teamStats: res.locals.teamStats
+  });
+});
+
+router.post('/flatpickr', (req, res) => {
+  res.json({ 
     min_date: res.locals.min_date,
-    max_date: res.locals.max_date,
+    max_date: res.locals.max_date
   });
 });
 
