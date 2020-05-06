@@ -45,7 +45,7 @@ class LeagueDBComposite:
     def append_snake_case_categories(self, categories, nhl_categories):
         cat_snake_dict = {'G': 'goals', 'A': 'assists', 'PIM': 'penalty_minutes', 'PPG': 'powerplay_goals', 'PPA': 'powerplay_assists', \
                     'SHP': 'shorthanded_points', 'GWG': 'game_winning_goals', 'SOG': 'shots_on_goal', 'FW': 'faceoff_wins', \
-                    'HIT': 'hits', 'BLK': 'blocks', 'W': 'wins', 'GA': 'goals_against', 'GAA': 'goals_against_average', \
+                    'HIT': 'hits', 'BLK': 'blocked_shots', 'W': 'wins', 'GA': 'goals_against', 'GAA': 'goals_against_average', \
                     'SV': 'saves', 'SA': 'shots_against', 'SV%': 'save_percentage', 'SHO': 'shutouts'}
 
         for cat in categories:
