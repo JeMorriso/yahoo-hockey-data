@@ -99,7 +99,8 @@ const getChartData = async (req, res, next) => {
   res.locals.teamStats = teamStats;
 
   res.locals.colours = ['rgb(2,55, 190, 11)', 'rgb(251, 86, 7)', 'rgb(255, 0, 110)', 'rgb(131, 56, 236)', 'rgb(58, 134, 255)', 'rgb(239, 71, 111)', 'rgb(255, 209, 102)', 'rgb(6, 214, 160)', 'rgb(17, 138, 178)', 'rgb(7, 59, 76)', 'rgb(21, 96, 100)', 'rgb(251, 143, 103)']
-  res.locals.dates = getDaysArray(new Date(start_date), new Date(end_date)); 
+  res.locals.dates = [];
+  getDaysArray(new Date(start_date), new Date(end_date)).forEach(date => res.locals.dates.push(date.toDateString())); 
 
   next();
 };
@@ -116,7 +117,15 @@ const getMinMaxDates = async (req, res, next) => {
 };
 
 const getCategories = async (req, res, next) => {
-  sql = "select category_name from scoring_category where category_snake_case != 'shorthanded_points';";
+  // TODO: fix these broken categories
+  sql = `
+    select category_name from scoring_category 
+    where category_snake_case != 'shorthanded_points'
+    and category_snake_case != 'goals_against_average'
+    and category_snake_case != 'shutouts'
+    and category_snake_case != 'game_winning_goals'
+    and category_snake_case != 'wins';
+    `;
   const result = await queryPromise(sql);
   res.locals.categories = [];
   result.forEach(el => res.locals.categories.push(el.category_name));
