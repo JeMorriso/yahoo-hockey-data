@@ -4,7 +4,8 @@ const { queryPromise, closePromise } = require('../js/db');
 const { getDaysArray } = require('../js/utils')
 
 const getChartData = async (req, res, next) => {
-  var start_date, end_date, category_snake_case;
+  var start_date, end_date, category_snake_case; 
+  
   // defaults
   if (req.body.start_date === undefined || req.body.end_date === undefined) {
     start_date = res.locals.min_date;
@@ -35,7 +36,8 @@ const getChartData = async (req, res, next) => {
       console.log(err);
     } 
   }
-  
+
+  const daysArray = getDaysArray(new Date(start_date), new Date(end_date));
   try {
     // figure out if category is skater or goalie
     sql = "select position_type, category_name from scoring_category where category_snake_case = ?;";
@@ -100,7 +102,7 @@ const getChartData = async (req, res, next) => {
 
   res.locals.colours = ['rgb(2,55, 190, 11)', 'rgb(251, 86, 7)', 'rgb(255, 0, 110)', 'rgb(131, 56, 236)', 'rgb(58, 134, 255)', 'rgb(239, 71, 111)', 'rgb(255, 209, 102)', 'rgb(6, 214, 160)', 'rgb(17, 138, 178)', 'rgb(7, 59, 76)', 'rgb(21, 96, 100)', 'rgb(251, 143, 103)']
   res.locals.dates = [];
-  getDaysArray(new Date(start_date), new Date(end_date)).forEach(date => res.locals.dates.push(date.toDateString())); 
+  daysArray.forEach(date => res.locals.dates.push(date)); 
 
   next();
 };
@@ -110,8 +112,8 @@ const getMinMaxDates = async (req, res, next) => {
   sql = "select start_date, end_date from league";
   // const is block-scoped
   const result = await queryPromise(sql);
-  res.locals.min_date = result[0].start_date.toISOString().substring(0,10);
-  res.locals.max_date = result[0].end_date.toISOString().substring(0,10);
+  res.locals.min_date = result[0].start_date;
+  res.locals.max_date = result[0].end_date;
 
   next();
 };
