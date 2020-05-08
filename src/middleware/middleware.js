@@ -1,7 +1,7 @@
 // Promisified mysql functions
 const { queryPromise, closePromise } = require('../js/db');
 // utility functions
-const { getDaysArray } = require('../js/utils')
+const { getDaysArray, cleanGroupbyTeamResult } = require('../js/utils')
 
 const getChartData = async (req, res, next) => {
   var start_date, end_date, category_snake_case; 
@@ -56,7 +56,7 @@ const getChartData = async (req, res, next) => {
 
     // create object with teams as keys for adding list of stats as values
     var teamStats = {};
-    teams.forEach(team => teamStats[team] = { 'datapoints': [], 'cumulative': [] })
+    teams.forEach(team => teamStats[team] = { 'datapoints': [], 'cumulative': [], 'rollingAverage': [] });
 
     // can't figure out how to avoid wrapping category in single quotes which breaks the query.
       // Since the category is not user provided, we don't need to worry about sql injection
@@ -102,6 +102,7 @@ const getChartData = async (req, res, next) => {
     `;
     let result2 = await queryPromise(sql, [statsTable, start_date]);
 
+    // cumulative stats
     for (const team of Object.keys(teamStats)) {
       var cumulativeStats = [];
       var initQ = 0;
@@ -120,6 +121,52 @@ const getChartData = async (req, res, next) => {
       }, initQ);
       teamStats[team].cumulative = cumulativeStats;
     }
+
+    // increment times by 1 hour for DST
+    let s = new Date(start_date);
+    s = new Date(s.setHours(s.getHours() + 1))
+    let e = new Date(end_date);
+    e = new Date(e.setHours(e.getHours() + 1))
+    // week-long rolling averages
+    let rollingStart = new Date(s);
+    rollingStart.setDate(rollingStart.getDate() - 3);
+    let rollingEnd = new Date(e);
+    rollingEnd.setDate(rollingEnd.getDate() + 3);
+    rollingDaysArray = getDaysArray(rollingStart, rollingEnd);
+
+    // third query for calculating rolling averages taking +/- 3 days
+    sql = `
+      select name, sum(${category_snake_case}) as stat, date_ as date
+      from fantasy_team as t
+      join (select * from roster where selected_position != 'BN') as r
+      on t.id = r.team_id
+      join (
+        select * 
+        from ??
+        where date_ >= ? and date_ <= ?
+      ) as s
+      on s.player_id = r.player_id and s.date_ >= r.start_date and s.date_ <= r.end_date
+      group by team_id, date_
+      order by name, date_;
+    `;
+    let result3 = await queryPromise(sql, [statsTable, rollingStart, rollingEnd]);
+
+    rollingTeamDateStat = cleanGroupbyTeamResult(teams, result3, rollingDaysArray);
+
+    // rolling average stats
+    for (const team of Object.keys(teamStats)) {
+      let sum = 0;
+      rollingDaysArray.slice(0,7).forEach(day => {
+        sum += rollingTeamDateStat[team][day];
+      })
+      teamStats[team].rollingAverage.push(sum/7);
+      rollingDaysArray.slice(4,-3).forEach((day, i) => {
+        sum -= rollingTeamDateStat[team][rollingDaysArray[i]];
+        sum += rollingTeamDateStat[team][rollingDaysArray[i+7]];
+        teamStats[team].rollingAverage.push(sum/7);
+      });
+    }
+    
   } catch (err) {
     console.log(err);
   } finally {
