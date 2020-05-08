@@ -5,12 +5,31 @@
   <h1>League</h1>
 <body>
 
+<!-- <form action="/chart" method="get"> -->
+<!-- use div and click listener to make AJAX request -->
+<div id="form">
+  <label for="categories">Scoring Category: </label>
+  <select id="categories">
+    <% categories.forEach(category => { %>
+      <option value="<%=category%>"><%=category%></option>
+    <% }) %>
+  </select>
+  <input id="datepicker" type="text" placeholder="Select date range...">
+  <!-- type='button' because we use click listener so don't need any behaviour -->
+  <button id="form-submit" type="button">Submit</button>
+  <label for="cumulative-checkbox">Cumulative</label>
+  <input type="checkbox" id="cumulative-checkbox" checked>
+</div>
+<!-- </form> -->
+
 <!-- use container to update canvas render and display sizes as per chartjs docs-->
 <div class="chart-container">
   <canvas id="league-graph"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-<script src="/js/leagueGraph.js"></script>
+<script src="/dist/flatpickrBundle.js"></script>
+<script src="/js/chart.js"></script>
+<script src="/js/app.js"></script>
 
 <%- include("partials/footer") %>
