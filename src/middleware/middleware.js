@@ -44,7 +44,6 @@ const getChartData = async (req, res, next) => {
     let result = await queryPromise(sql, category_snake_case);
 
     const position_type = result[0].position_type; 
-    console.log(position_type);
     statsTable = `${position_type}_stats`;
 
     // const is block-scoped!
@@ -54,7 +53,6 @@ const getChartData = async (req, res, next) => {
     result = await queryPromise(sql);
     console.log(result);
     const teams = result.map(x => x.name);
-    console.log(teams);
 
     // create object with teams as keys for adding list of stats as values
     var teamStats = {};
@@ -65,7 +63,7 @@ const getChartData = async (req, res, next) => {
     sql = `
       select name, sum(${category_snake_case}) as stat, date_ as date
       from fantasy_team as t
-      join roster as r
+      join (select * from roster where selected_position != 'BN') as r
       on t.id = r.team_id
       join (
         select * 
@@ -79,6 +77,7 @@ const getChartData = async (req, res, next) => {
     result = await queryPromise(sql, [statsTable, start_date, end_date]);
     // assign results to correct team
     let i = 0;
+    // TODO: fix bug here
     result.forEach(x => {
       // post-increment; i increments when loop not entered, and for each loop iteration
       while (daysArray[i++ % daysArray.length] !== x.date) {
@@ -86,14 +85,39 @@ const getChartData = async (req, res, next) => {
       }
       teamStats[x.name].datapoints.push(x.stat);
     })
-    // make cumulative 
+    // make cumulative - want to have start value be relative to beginning of season instead of zero, so make second db query
+    sql = `
+      select name, sum(${category_snake_case}) as stat, date_ as date
+      from fantasy_team as t
+      join (select * from roster where selected_position != 'BN') as r
+      on t.id = r.team_id
+      join (
+        select * 
+        from ??
+        where date_ < ?
+      ) as s
+      on s.player_id = r.player_id and s.date_ >= r.start_date and s.date_ <= r.end_date
+      group by team_id
+      order by name;
+    `;
+    let result2 = await queryPromise(sql, [statsTable, start_date]);
+
     for (const team of Object.keys(teamStats)) {
       var cumulativeStats = [];
-      // if initial value of zero is not provided then callback starts at index 1
+      var initQ = 0;
+      // find initial quantity
+      if (Array.isArray(result2) && result2.length) {
+        teamElement = result2.find(el => el.name == team);
+        if (typeof teamElement !== 'undefined') {
+          initQ = teamElement.stat;
+        }
+      }
+      // if initial value is not provided then callback starts at index 1
+      // set acc to start at cumulative quantity for each team up to that date
       teamStats[team].datapoints.reduce( (acc, curr, i) => {
         // not sure why .push() doesn't work here - different return type probably
         return cumulativeStats[i] = acc + curr;
-      }, 0);
+      }, initQ);
       teamStats[team].cumulative = cumulativeStats;
     }
   } catch (err) {
