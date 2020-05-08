@@ -18,6 +18,23 @@ document.getElementById("form-submit").addEventListener("click", _ => {
   getChartDataWrapper({ start_date, end_date, category });
 });
 
+document.getElementById("cumulative-checkbox").addEventListener("click", _ => {
+  data = { labels: rawChartData.dates, datasets: [] }
+
+  // build structure for each dataset entry (each line in graph)
+  Object.entries(rawChartData.teamStats).forEach(([key, val], i) => {
+      data.datasets.push({
+          label: key,
+          data: document.getElementById("cumulative-checkbox").checked == false ? val.rollingAverage : val.cumulative,
+          borderColor: rawChartData.colours[i],
+      })
+  });
+  myChart.destroy();
+  var ctx = document.getElementById('league-graph').getContext('2d');
+
+  myChart = generateChart(ctx, data, rawChartData.category)
+});
+
 const getMinMaxDates = async _ => {
   const response = await fetch('http://localhost:3000/flatpickr', {
     method: 'POST',
