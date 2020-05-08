@@ -1,4 +1,6 @@
 var myChart;
+// save resData for frontend use
+var rawChartData;
 
 // reqData is start_date, end_date, and category, or empty (first page load)
 const getChartData = async reqData => {
@@ -12,6 +14,7 @@ const getChartData = async reqData => {
         body: JSON.stringify(reqData)
     });
     const resData = await response.json();
+    rawChartData = resData;
     return resData;
 }
 
@@ -31,6 +34,39 @@ const buildChartData = rawData => {
     return data;
 }
 
+const generateChart = (ctx, chartData, chartTitle) => {
+    return new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            legend: {
+                position: 'left',
+                onHover: function(e) {
+                    e.target.style.cursor = 'pointer';
+                 },
+                 onLeave: (e) => {
+                     e.target.style.cursor = 'default';
+                 }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        // y-axis starts at 0
+                        // beginAtZero: true
+                    }
+                }]
+            },
+            // default true
+            responsive: true,
+            title: {
+                display: true,
+                text: chartTitle,
+                fontSize: 24
+            }
+        }
+    });
+}
+
 function getChartDataWrapper(reqData) {
     getChartData(reqData).then(data => {
         const chartData = buildChartData(data);
@@ -40,36 +76,7 @@ function getChartDataWrapper(reqData) {
         }
         var ctx = document.getElementById('league-graph').getContext('2d');
 
-        myChart = new Chart(ctx, {
-            type: 'line',
-            data: chartData,
-            options: {
-                legend: {
-                    position: 'left',
-                    onHover: function(e) {
-                        e.target.style.cursor = 'pointer';
-                     },
-                     onLeave: (e) => {
-                         e.target.style.cursor = 'default';
-                     }
-                },
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            // y-axis starts at 0
-                            // beginAtZero: true
-                        }
-                    }]
-                },
-                // default true
-                responsive: true,
-                title: {
-                    display: true,
-                    text: data.category,
-                    fontSize: 24
-                }
-            }
-        });
+        myChart = generateChart(ctx, chartData, data.category)
     });
 }
 
