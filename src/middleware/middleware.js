@@ -78,7 +78,12 @@ const getChartData = async (req, res, next) => {
     `;
     result = await queryPromise(sql, [statsTable, start_date, end_date]);
     // assign results to correct team
+    let i = 0;
     result.forEach(x => {
+      // post-increment; i increments when loop not entered, and for each loop iteration
+      while (daysArray[i++ % daysArray.length] !== x.date) {
+        teamStats[x.name].datapoints.push(0);
+      }
       teamStats[x.name].datapoints.push(x.stat);
     })
     // make cumulative 
