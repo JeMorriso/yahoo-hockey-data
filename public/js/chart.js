@@ -4,7 +4,7 @@ var rawChartData;
 
 // reqData is start_date, end_date, and category, or empty (first page load)
 const getChartData = async reqData => {
-    const response = await fetch('http://localhost:3000/chart', {
+    const response = await fetch('https://in-it-to-winnik.herokuapp.com/chart', {
         // only post request can have body in fetch API
         method: 'POST',
         headers: {
