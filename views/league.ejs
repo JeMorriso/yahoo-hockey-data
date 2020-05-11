@@ -17,8 +17,13 @@
   <input id="datepicker" type="text" placeholder="Select date range...">
   <!-- type='button' because we use click listener so don't need any behaviour -->
   <button id="form-submit" type="button">Submit</button>
-  <label for="cumulative-checkbox">Cumulative</label>
-  <input type="checkbox" id="cumulative-checkbox" checked>
+  <div>
+    <label for="cumulative">Cumulative</label>
+    <input type="radio" name="chart-radio" id="cumulative" value="cumulative" checked>
+    <label for="rolling-avg">Rolling Average</label>
+    <input type="radio" name="chart-radio" id="rolling-avg" value="rolling-avg">
+  </div>
+
 </div>
 <!-- </form> -->
 
