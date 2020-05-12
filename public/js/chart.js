@@ -1,11 +1,13 @@
 var myChart;
 // save resData for frontend use
 var rawChartData;
+// status of team's data on chart - hidden or shown
+var teamsHidden = {};
 
 // reqData is start_date, end_date, and category, or empty (first page load)
 const getChartData = async reqData => {
-    const response = await fetch('https://in-it-to-winnik.herokuapp.com/chart', {
-    // const response = await fetch('http://localhost:3000/chart', {
+    // const response = await fetch('https://in-it-to-winnik.herokuapp.com/chart', {
+    const response = await fetch('http://localhost:3000/chart', {
         // only post request can have body in fetch API
         method: 'POST',
         headers: {
@@ -26,11 +28,17 @@ const buildChartData = rawData => {
 
     // build structure for each dataset entry (each line in graph)
     Object.entries(rawData.teamStats).forEach(([key, val], i) => {
+        // also add each key to teamsHidden object, only the first time the page is loaded to avoid overwriting
+        if (Object.keys(teamsHidden).length < Object.keys(rawData.teamStats).length) {
+            teamsHidden[key] = false;
+        }
+
         data.datasets.push({
             label: key,
             data: val.cumulative,
             borderColor: rawData.colours[i],
-        })
+            hidden: teamsHidden[key]
+        });
     });
     return data;
 }
@@ -48,7 +56,15 @@ const generateChart = (ctx, chartData, chartTitle) => {
                  },
                  onLeave: (e) => {
                      e.target.style.cursor = 'default';
+                 }, 
+                 onClick: function (e, legendItem) {  
+                     console.log(legendItem);
+                     teamsHidden[legendItem.text] = !teamsHidden[legendItem.text];
+                     Chart.defaults.global.legend.onClick.call(this, e, legendItem);
                  }
+                //  labels: {
+                //      defaultFontStyle: 'monospace'
+                //  }
             },
             scales: {
                 yAxes: [{
@@ -60,6 +76,7 @@ const generateChart = (ctx, chartData, chartTitle) => {
             },
             // default true
             responsive: true,
+            maintainAspectRatio: false,
             title: {
                 display: true,
                 text: chartTitle,

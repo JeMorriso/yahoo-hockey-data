@@ -30,6 +30,7 @@ for (radio of chartRadios) {
           label: key,
           data: this.id === "cumulative" ? val.cumulative : val.rollingAverage,
           borderColor: rawChartData.colours[i],
+          hidden: teamsHidden[key]
       });
   });
   myChart.destroy();
@@ -40,8 +41,8 @@ for (radio of chartRadios) {
 }
 
 const getMinMaxDates = async _ => {
-  const response = await fetch('https://in-it-to-winnik.herokuapp.com/flatpickr', {
-  // const response = await fetch('http://localhost:3000/flatpickr', {
+  // const response = await fetch('https://in-it-to-winnik.herokuapp.com/flatpickr', {
+  const response = await fetch('http://localhost:3000/flatpickr', {
     method: 'POST',
     headers: {
         'Accept': 'application/json',
