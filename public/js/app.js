@@ -40,6 +40,18 @@ for (radio of chartRadios) {
   });
 }
 
+const selectButtons = document.getElementsByClassName("select-button");
+for (button of selectButtons) {
+  button.addEventListener("click", function(e) {
+    const hide = this.id === "unselect-button" ? true : false;
+    for (dataset of myChart.data.datasets) {
+      dataset.hidden = hide;
+      teamsHidden[dataset.label] = hide;
+    }
+    myChart.update();
+  })
+}
+
 const getMinMaxDates = async _ => {
   // const response = await fetch('https://in-it-to-winnik.herokuapp.com/flatpickr', {
   const response = await fetch('http://localhost:3000/flatpickr', {
