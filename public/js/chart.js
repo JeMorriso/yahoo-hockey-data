@@ -4,6 +4,9 @@ var rawChartData;
 // status of team's data on chart - hidden or shown
 var teamsHidden = {};
 
+// minimum chart size depends on how big the dataset is
+const chartContainer = document.getElementById('chart-container');
+
 // reqData is start_date, end_date, and category, or empty (first page load)
 const getChartData = async reqData => {
     const response = await fetch(buildFetchURL('chart'), {
@@ -18,6 +21,14 @@ const getChartData = async reqData => {
     });
     const resData = await response.json();
     rawChartData = resData;
+
+    // determine minimum chart size based off size of dataset
+    if (rawChartData.dates.length <= 14) {
+        chartContainer.className += 'small-dataset';
+    } else if (rawChartData.dates.length <= 100) {
+        chartContainer.className += 'medium-dataset';
+    }
+
     return resData;
 }
 

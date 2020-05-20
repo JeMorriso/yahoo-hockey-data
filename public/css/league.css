@@ -1,7 +1,21 @@
-.chart-container {
+#chart-container {
   position: relative;
   margin: auto;
-  /* 80% viewport width and height - from chartjs docs*/
-  height: 80vh;
-  width: 80vw;
+  /* 95% viewport width and height */
+  height: 95vh;
+  width: 95vw;
+
+  /* default large dataset */
+  min-width: 1400px;
+  min-height: 900px;
+}
+
+.small-dataset {
+  min-width: 730px;
+  min-height: 730px;
+}
+
+.medium-dataset {
+  min-width: 1248px;
+  min-height: 800px;
 }
