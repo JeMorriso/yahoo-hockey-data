@@ -51,7 +51,7 @@ const getChartData = async (req, res, next) => {
 
     sql = `select name from fantasy_team;`;
     result = await queryPromise(sql);
-    console.log(result);
+    // console.log(result);
     const teams = result.map(x => x.name);
 
     // create object with teams as keys for adding list of stats as values

@@ -18,6 +18,16 @@ router.get('/', (req, res) => {
 
 // this route is getting called by AJAX client-side graph javascript
 router.post('/chart', (req, res, next) => {
+  // add debugging statement in for heroku logs
+  console.log("Request Headers: ");
+  console.log(req.headers);
+
+  // res.setHeader('Access-Control-Allow-Origin', '*')
+
+  // add debugging statement in for heroku logs
+  console.log("Response Headers: ");
+  console.log(res._headers);
+
   // not sure if this is best practice
   res.json({ category: res.locals.category, 
     dates: res.locals.dates, 

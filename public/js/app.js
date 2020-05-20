@@ -52,9 +52,9 @@ for (button of selectButtons) {
   })
 }
 
+// utility functions
 const getMinMaxDates = async _ => {
-  const response = await fetch('https://in-it-to-winnik.herokuapp.com/flatpickr', {
-  // const response = await fetch('http://localhost:3000/flatpickr', {
+  const response = await fetch(buildFetchURL('flatpickr'), {
     method: 'POST',
     headers: {
         'Accept': 'application/json',
@@ -63,6 +63,10 @@ const getMinMaxDates = async _ => {
   });
   const resData = await response.json();
   return resData;
+}
+
+const buildFetchURL = route => {
+  return window.location.protocol + "//" + window.location.host + "/" + route
 }
 
 getMinMaxDates().then(data => {

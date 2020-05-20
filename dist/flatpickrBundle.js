@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/index.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/flatpickr.js");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -143,14 +143,14 @@ eval("\n\nvar isOldIE = function isOldIE() {\n  var memo;\n  return function mem
 
 /***/ }),
 
-/***/ "./src/index.js":
-/*!**********************!*\
-  !*** ./src/index.js ***!
-  \**********************/
+/***/ "./src/flatpickr.js":
+/*!**************************!*\
+  !*** ./src/flatpickr.js ***!
+  \**************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("const flatpickr = __webpack_require__(/*! flatpickr */ \"./node_modules/flatpickr/dist/flatpickr.js\"); \n\n// I forgot to require the CSS!!!!!\n__webpack_require__(/*! ../node_modules/flatpickr/dist/flatpickr.min.css */ \"./node_modules/flatpickr/dist/flatpickr.min.css\");\n\n//# sourceURL=webpack:///./src/index.js?");
+eval("const flatpickr = __webpack_require__(/*! flatpickr */ \"./node_modules/flatpickr/dist/flatpickr.js\"); \n\n// I forgot to require the CSS!!!!!\n__webpack_require__(/*! ../node_modules/flatpickr/dist/flatpickr.min.css */ \"./node_modules/flatpickr/dist/flatpickr.min.css\");\n\n//# sourceURL=webpack:///./src/flatpickr.js?");
 
 /***/ })
 
