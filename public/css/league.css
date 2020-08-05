@@ -1,13 +1,12 @@
 #chart-container {
   position: relative;
   margin: auto;
-  /* 95% viewport width and height */
-  height: 95vh;
+  height: 88vh;
   width: 95vw;
 
   /* default large dataset */
-  min-width: 1400px;
-  min-height: 900px;
+  min-width: 1300px;
+  min-height: 700px;
 }
 
 .small-dataset {
