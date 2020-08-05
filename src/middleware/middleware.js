@@ -1,24 +1,28 @@
 // Promisified mysql functions
 const { queryPromise, closePromise } = require('../js/db');
 // utility functions
-const { getDaysArray, cleanGroupbyTeamResult } = require('../js/utils')
+const { getDaysArray, cleanGroupbyTeamResult } = require('../js/utils');
 
 const getChartData = async (req, res, next) => {
-  var start_date, end_date, category_snake_case; 
-  
+  var start_date, end_date, category_snake_case;
+
   // defaults
   if (req.body.start_date === undefined || req.body.end_date === undefined) {
     start_date = res.locals.min_date;
+    // end_date = res.locals.max_date;
+
+    // Season ended early!
+    end_date = '2020-03-02';
     // Don't show future dates on graph
     // TODO: test this is working correctly
-    if (Date.now() < new Date(res.locals.max_date).getTime()) {
-      // end_date = new Date().toISOString().substring(0,10);
+    // if (Date.now() < new Date(res.locals.max_date).getTime()) {
+    //   // end_date = new Date().toISOString().substring(0,10);
 
-      // for now, because league is paused. 
-      end_date = "2020-03-02";
-    } else {
-      end_date = res.locals.max_date;
-    }
+    //   // for now, because league is paused.
+    //   end_date = "2020-03-02";
+    // } else {
+    //   end_date = res.locals.max_date;
+    // }
   } else {
     start_date = req.body.start_date;
     end_date = req.body.end_date;
@@ -29,21 +33,23 @@ const getChartData = async (req, res, next) => {
   } else {
     // get the snake case version of the category
     try {
-      sql = "select category_snake_case from scoring_category where category_name = ?;";
+      sql =
+        'select category_snake_case from scoring_category where category_name = ?;';
       let result = await queryPromise(sql, req.body.category);
       category_snake_case = result[0].category_snake_case;
     } catch (err) {
       console.log(err);
-    } 
+    }
   }
 
   const daysArray = getDaysArray(new Date(start_date), new Date(end_date));
   try {
     // figure out if category is skater or goalie
-    sql = "select position_type, category_name from scoring_category where category_snake_case = ?;";
+    sql =
+      'select position_type, category_name from scoring_category where category_snake_case = ?;';
     let result = await queryPromise(sql, category_snake_case);
 
-    const position_type = result[0].position_type; 
+    const position_type = result[0].position_type;
     statsTable = `${position_type}_stats`;
 
     // const is block-scoped!
@@ -52,14 +58,21 @@ const getChartData = async (req, res, next) => {
     sql = `select name from fantasy_team;`;
     result = await queryPromise(sql);
     // console.log(result);
-    const teams = result.map(x => x.name);
+    const teams = result.map((x) => x.name);
 
     // create object with teams as keys for adding list of stats as values
     var teamStats = {};
-    teams.forEach(team => teamStats[team] = { 'datapoints': [], 'cumulative': [], 'rollingAverage': [] });
+    teams.forEach(
+      (team) =>
+        (teamStats[team] = {
+          datapoints: [],
+          cumulative: [],
+          rollingAverage: [],
+        })
+    );
 
     // can't figure out how to avoid wrapping category in single quotes which breaks the query.
-      // Since the category is not user provided, we don't need to worry about sql injection
+    // Since the category is not user provided, we don't need to worry about sql injection
     sql = `
       select name, sum(${category_snake_case}) as stat, date_ as date
       from fantasy_team as t
@@ -78,13 +91,13 @@ const getChartData = async (req, res, next) => {
     // assign results to correct team
     let i = 0;
     // TODO: fix bug here
-    result.forEach(x => {
+    result.forEach((x) => {
       // post-increment; i increments when loop not entered, and for each loop iteration
       while (daysArray[i++ % daysArray.length] !== x.date) {
         teamStats[x.name].datapoints.push(0);
       }
       teamStats[x.name].datapoints.push(x.stat);
-    })
+    });
     // make cumulative - want to have start value be relative to beginning of season instead of zero, so make second db query
     sql = `
       select name, sum(${category_snake_case}) as stat, date_ as date
@@ -108,25 +121,25 @@ const getChartData = async (req, res, next) => {
       var initQ = 0;
       // find initial quantity
       if (Array.isArray(result2) && result2.length) {
-        teamElement = result2.find(el => el.name == team);
+        teamElement = result2.find((el) => el.name == team);
         if (typeof teamElement !== 'undefined') {
           initQ = teamElement.stat;
         }
       }
       // if initial value is not provided then callback starts at index 1
       // set acc to start at cumulative quantity for each team up to that date
-      teamStats[team].datapoints.reduce( (acc, curr, i) => {
+      teamStats[team].datapoints.reduce((acc, curr, i) => {
         // not sure why .push() doesn't work here - different return type probably
-        return cumulativeStats[i] = acc + curr;
+        return (cumulativeStats[i] = acc + curr);
       }, initQ);
       teamStats[team].cumulative = cumulativeStats;
     }
 
     // increment times by 1 hour for DST
     let s = new Date(start_date);
-    s = new Date(s.setHours(s.getHours() + 1))
+    s = new Date(s.setHours(s.getHours() + 1));
     let e = new Date(end_date);
-    e = new Date(e.setHours(e.getHours() + 1))
+    e = new Date(e.setHours(e.getHours() + 1));
     // week-long rolling averages
     let rollingStart = new Date(s);
     rollingStart.setDate(rollingStart.getDate() - 3);
@@ -149,24 +162,31 @@ const getChartData = async (req, res, next) => {
       group by team_id, date_
       order by name, date_;
     `;
-    let result3 = await queryPromise(sql, [statsTable, rollingStart, rollingEnd]);
+    let result3 = await queryPromise(sql, [
+      statsTable,
+      rollingStart,
+      rollingEnd,
+    ]);
 
-    rollingTeamDateStat = cleanGroupbyTeamResult(teams, result3, rollingDaysArray);
+    rollingTeamDateStat = cleanGroupbyTeamResult(
+      teams,
+      result3,
+      rollingDaysArray
+    );
 
     // rolling average stats
     for (const team of Object.keys(teamStats)) {
       let sum = 0;
-      rollingDaysArray.slice(0,7).forEach(day => {
+      rollingDaysArray.slice(0, 7).forEach((day) => {
         sum += rollingTeamDateStat[team][day];
-      })
-      teamStats[team].rollingAverage.push(sum/7);
-      rollingDaysArray.slice(4,-3).forEach((day, i) => {
+      });
+      teamStats[team].rollingAverage.push(sum / 7);
+      rollingDaysArray.slice(4, -3).forEach((day, i) => {
         sum -= rollingTeamDateStat[team][rollingDaysArray[i]];
-        sum += rollingTeamDateStat[team][rollingDaysArray[i+7]];
-        teamStats[team].rollingAverage.push(sum/7);
+        sum += rollingTeamDateStat[team][rollingDaysArray[i + 7]];
+        teamStats[team].rollingAverage.push(sum / 7);
       });
     }
-    
   } catch (err) {
     console.log(err);
   } finally {
@@ -176,16 +196,29 @@ const getChartData = async (req, res, next) => {
 
   res.locals.teamStats = teamStats;
 
-  res.locals.colours = ['rgb(2,55, 190, 11)', 'rgb(251, 86, 7)', 'rgb(255, 0, 110)', 'rgb(131, 56, 236)', 'rgb(58, 134, 255)', 'rgb(239, 71, 111)', 'rgb(255, 209, 102)', 'rgb(6, 214, 160)', 'rgb(17, 138, 178)', 'rgb(7, 59, 76)', 'rgb(21, 96, 100)', 'rgb(251, 143, 103)']
+  res.locals.colours = [
+    'rgb(2,55, 190, 11)',
+    'rgb(251, 86, 7)',
+    'rgb(255, 0, 110)',
+    'rgb(131, 56, 236)',
+    'rgb(58, 134, 255)',
+    'rgb(239, 71, 111)',
+    'rgb(255, 209, 102)',
+    'rgb(6, 214, 160)',
+    'rgb(17, 138, 178)',
+    'rgb(7, 59, 76)',
+    'rgb(21, 96, 100)',
+    'rgb(251, 143, 103)',
+  ];
   res.locals.dates = [];
-  daysArray.forEach(date => res.locals.dates.push(date)); 
+  daysArray.forEach((date) => res.locals.dates.push(date));
 
   next();
 };
 
 // Minimum and Maximum dates for flatpickr and default chart
 const getMinMaxDates = async (req, res, next) => {
-  sql = "select start_date, end_date from league";
+  sql = 'select start_date, end_date from league';
   // const is block-scoped
   const result = await queryPromise(sql);
   res.locals.min_date = result[0].start_date;
@@ -206,9 +239,8 @@ const getCategories = async (req, res, next) => {
     `;
   const result = await queryPromise(sql);
   res.locals.categories = [];
-  result.forEach(el => res.locals.categories.push(el.category_name));
+  result.forEach((el) => res.locals.categories.push(el.category_name));
   next();
-}
+};
 
-module.exports = { getMinMaxDates, getChartData, getCategories }
-
+module.exports = { getMinMaxDates, getChartData, getCategories };
