@@ -1,41 +1,55 @@
 <%- include("partials/header") %>
 <link rel="stylesheet" href="/css/league.css">
 </head>
-  <%- include("partials/navbar") %>
-  <h1>League</h1>
+
 <body>
-
-<!-- <form action="/chart" method="get"> -->
-<!-- use div and click listener to make AJAX request -->
-<div id="form">
-  <label for="categories">Scoring Category: </label>
-  <select id="categories">
+<div class="wrapper">
+  <h1>In It To Winnik</h1>
+  <!-- <form action="/chart" method="get"> -->
+  <!-- use div and click listener to make AJAX request -->
+  <div id="form">
+  <section>
+    <div class="form-flex">
+    <label for="categories">Scoring Category: </label>
+    <select id="categories">
     <% categories.forEach(category => { %>
-      <option value="<%=category%>"><%=category%></option>
-    <% }) %>
-  </select>
-  <input id="datepicker" type="text" placeholder="Select date range...">
-  <!-- type='button' because we use click listener so don't need any behaviour -->
-  <button id="form-submit" type="button">Submit</button>
-  <div>
-    <label for="cumulative">Cumulative</label>
-    <input type="radio" name="chart-radio" id="cumulative" value="cumulative" checked>
-    <label for="rolling-avg">Rolling Average</label>
-    <input type="radio" name="chart-radio" id="rolling-avg" value="rolling-avg">
+        <option value="<%=category%>"><%=category%></option>
+        <% }) %>
+    </select>
+    </div>
+    <div class="form-flex">
+      <label for="calendar">Date Range: </label>
+      <input id="datepicker" name="calendar" type="text" placeholder="Select date range...">
+      <!-- type='button' because we use click listener so don't need any behaviour -->
+    </div>
+    <div id="form-submit-div"><button id="form-submit" type="button">Submit</button></div>
+  </section>
+  <section>
+    <div class="form-flex">
+      <label for="chart-radios">Measure: </label>
+      <div name="chart-radios">
+        <label for="cumulative">Cumulative</label>
+        <input type="radio" name="chart-radio" id="cumulative" value="cumulative" checked>
+        <label for="rolling-avg">Rolling Average</label>
+        <input type="radio" name="chart-radio" id="rolling-avg" value="rolling-avg">
+      </div>
+    </div>
+    <div>
+      <button class="select-button" id="select-button" type="button">Select All Teams</button>
+      <button class="select-button" id="unselect-button" type="button">Unselect All Teams</button>
+    </div>
+  </section>
   </div>
-  <button class="select-button" id="select-button" type="button">Select All</button>
-  <button class="select-button" id="unselect-button" type="button">Unselect All</button>
+  <!-- </form> -->
+
+  <!-- use container to update canvas render and display sizes as per chartjs docs-->
+  <div id="chart-container">
+    <canvas id="league-graph"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+  <script src="/dist/flatpickrBundle.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chart.js"></script>
 </div>
-<!-- </form> -->
-
-<!-- use container to update canvas render and display sizes as per chartjs docs-->
-<div id="chart-container">
-  <canvas id="league-graph"></canvas>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-<script src="/dist/flatpickrBundle.js"></script>
-<script src="/js/app.js"></script>
-<script src="/js/chart.js"></script>
-
 <%- include("partials/footer") %>
