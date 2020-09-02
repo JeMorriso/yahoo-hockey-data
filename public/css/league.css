@@ -1,3 +1,9 @@
+h1 {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 4em;
+  text-align: center;
+}
+
 #form {
   display: flex;
   flex-direction: column;
@@ -21,7 +27,6 @@ section > div {
 }
 
 #chart-container {
-  /* position: relative; */
   margin: auto;
   height: 88vh;
 
