@@ -8,10 +8,8 @@ class DBConnection:
         self.connection = mysql.connector.connect(
             host=os.getenv("HOST"),
             user=os.getenv("USER"),
-            # os.getenv('DATABASE") not working in pycharm
-            database="in_it_to_winnik",
-            # os.getenv('PASSWORD') not working in pycharm
-            password="moomoo")
+            database=os.getenv('DATABASE'),
+            password=os.getenv('PASSWORD')
 
     # this makes me think that it's not useful to store both yahoo and my own IDs
     def get_league_id(self, league):
