@@ -63,7 +63,8 @@ const generateChart = (ctx, chartData, chartTitle) => {
     options: {
       legend: {
         position: 'top',
-        align: 'end',
+        align: 'start',
+        fullWidth: false,
         onHover: function (e) {
           e.target.style.cursor = 'pointer';
         },
