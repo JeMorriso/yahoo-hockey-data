@@ -8,37 +8,37 @@
   <!-- <form action="/chart" method="get"> -->
   <!-- use div and click listener to make AJAX request -->
   <div id="form">
-  <section>
-    <div class="form-flex">
-    <label for="categories">Scoring Category: </label>
-    <select id="categories">
-    <% categories.forEach(category => { %>
-        <option value="<%=category%>"><%=category%></option>
-        <% }) %>
-    </select>
-    </div>
-    <div class="form-flex">
-      <label for="calendar">Date Range: </label>
-      <input id="datepicker" name="calendar" type="text" placeholder="Select date range...">
-      <!-- type='button' because we use click listener so don't need any behaviour -->
-    </div>
-    <div id="form-submit-div"><button id="form-submit" type="button">Submit</button></div>
-  </section>
-  <section>
-    <div class="form-flex">
-      <label for="chart-radios">Measure: </label>
-      <div name="chart-radios">
-        <label for="cumulative">Cumulative</label>
-        <input type="radio" name="chart-radio" id="cumulative" value="cumulative" checked>
-        <label for="rolling-avg">Rolling Average</label>
-        <input type="radio" name="chart-radio" id="rolling-avg" value="rolling-avg">
+    <section>
+      <div class="form-flex">
+      <label for="categories">Scoring Category: </label>
+      <select id="categories">
+      <% categories.forEach(category => { %>
+          <option value="<%=category%>"><%=category%></option>
+          <% }) %>
+      </select>
       </div>
-    </div>
-    <div>
-      <button class="select-button" id="select-button" type="button">Select All Teams</button>
-      <button class="select-button" id="unselect-button" type="button">Unselect All Teams</button>
-    </div>
-  </section>
+      <div class="form-flex">
+        <label for="calendar">Date Range: </label>
+        <input id="datepicker" name="calendar" type="text" placeholder="Select date range...">
+        <!-- type='button' because we use click listener so don't need any behaviour -->
+      </div>
+      <div id="form-submit-div"><button id="form-submit" type="button">Submit</button></div>
+    </section>
+    <section>
+      <div class="form-flex">
+        <label for="chart-radios">Measure: </label>
+        <div name="chart-radios">
+          <label for="cumulative">Cumulative</label>
+          <input type="radio" name="chart-radio" id="cumulative" value="cumulative" checked>
+          <label for="rolling-avg">Rolling Average</label>
+          <input type="radio" name="chart-radio" id="rolling-avg" value="rolling-avg">
+        </div>
+      </div>
+      <div>
+        <button class="select-button" id="select-button" type="button">Select All Teams</button>
+        <button class="select-button" id="unselect-button" type="button">Unselect All Teams</button>
+      </div>
+    </section>
   </div>
   <!-- </form> -->
 

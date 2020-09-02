@@ -1,15 +1,10 @@
-h1 {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 4em;
-  text-align: center;
-}
-
 #form {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 350px;
   height: 130px;
+  margin-left: 4.5em;
 }
 
 .form-flex {
@@ -23,7 +18,7 @@ h1 {
 }
 
 section > div {
-  margin-bottom: 0.25em;
+  margin-top: 0.25em;
 }
 
 #chart-container {
