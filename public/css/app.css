@@ -1,11 +1,15 @@
 :root {
   --bg-1: #343d46;
+  --bg-2: #4f5b66;
+  --bg-3: #a7adba;
   --text: #c0c5ce;
+  --border-radius: 30px;
 }
 
 body {
   font-size: 16px;
   font-family: sans-serif;
+  background-color: var(--bg-1);
 }
 
 .wrapper {
@@ -18,15 +22,59 @@ h1 {
   font-family: 'Open Sans', sans-serif;
   font-size: 4em;
   text-align: center;
+  color: var(--text);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  /* color: white; */
+}
+
+button {
+  all: unset;
+  background-color: var(--bg-3);
+  border-radius: 5px;
+  padding: 2px 5px;
+  cursor: pointer;
+}
+
+select {
+  border-radius: 5px;
+  background-color: white;
+}
+
+input {
+  border: unset;
+  border-radius: 5px;
 }
 
 #form {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 350px;
-  height: 130px;
-  margin-left: 4.5em;
+  width: 400px;
+  /* height: 130px; */
+  margin-left: 4.5rem;
+  margin-bottom: 1rem;
+  color: white;
+  /* padding: 10px; */
+  /* make height static since the graph isn't responsive either */
+  height: 180px;
+}
+
+@media screen and (max-width: 650px) {
+  #form {
+    margin: auto;
+    /* not sure why margin auto removing margin bottom */
+    margin-bottom: 1rem;
+    /* width: 350px; */
+    /* height: 250px; */
+  }
+}
+
+#form > section {
+  background-color: var(--bg-2);
+  /* border-radius: var(--border-radius); */
+  border-radius: 13px;
+  padding: 10px;
 }
 
 .form-flex {
@@ -46,6 +94,10 @@ section > div {
 #chart-container {
   margin: auto;
   height: 88vh;
+  background-color: var(--text);
+  padding: 3px;
+  padding-bottom: 7px;
+  border-radius: var(--border-radius);
 
   /* default large dataset */
   min-width: 1300px;
